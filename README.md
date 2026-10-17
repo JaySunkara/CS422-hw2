@@ -49,6 +49,8 @@ python3 -m venv .venv
 | `--max-attempts` | Total destinations tried, including replacements (`2*n`) |
 | `--algorithms` | Comma-separated algorithms, or `default` for the OS default only (`cubic,reno,bbr`) |
 | `-r`, `--repetitions` | Runs per destination and algorithm (`3`) |
+| `--pause` | Seconds to wait before each test; public servers often reset a test that starts right after the previous one (`5`) |
+| `--retries` | Extra tries of the same server after a failed test, each saved as its own attempt (`1`) |
 | `--seed` | Random selection seed (generated and recorded if omitted) |
 
 The input list comes from [iperf3serverlist.net](https://iperf3serverlist.net/);

@@ -8,6 +8,7 @@ import math
 import platform
 import random
 import sys
+import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -74,13 +75,16 @@ def algorithm_order(algorithms, repetition):
 
 
 def run_experiment(servers_path, output, count=10, duration=60, interval=0.2,
-                   timeout=10, max_attempts=None, seed=None, algorithms=None, repetitions=1):
+                   timeout=10, max_attempts=None, seed=None, algorithms=None, repetitions=1,
+                   pause=5, retries=1):
     if count < 1 or type(duration) is not int or not 1 <= duration <= 86400:
         raise ValueError("count must be positive; duration must be an integer in 1..86400")
     if not all(math.isfinite(value) and value > 0 for value in (interval, timeout)):
         raise ValueError("interval and timeout must be finite positive seconds")
     if repetitions < 1:
         raise ValueError("repetitions must be at least 1")
+    if not math.isfinite(pause) or pause < 0 or retries < 0:
+        raise ValueError("pause must be finite and non-negative; retries must be non-negative")
     max_attempts = 2 * count if max_attempts is None else max_attempts
     if max_attempts < count:
         raise ValueError("max-attempts must be at least the requested destination count")
@@ -109,6 +113,7 @@ def run_experiment(servers_path, output, count=10, duration=60, interval=0.2,
         "duration_seconds": duration, "sampling_interval_seconds": interval,
         "timeout_seconds": timeout, "host_metadata": host_metadata(),
         "algorithms": algorithms, "repetitions": repetitions,
+        "pause_seconds": pause, "retries_per_run": retries,
         "algorithm_policy": policy,
         "matplotlib_version": matplotlib.__version__,
         "server_list_source": "https://iperf3serverlist.net/",
@@ -126,11 +131,28 @@ def run_experiment(servers_path, output, count=10, duration=60, interval=0.2,
     interrupted = False
 
     def run_one(destination, algorithm, repetition, order_index):
+        """Run one cell of the schedule, retrying the same server a bounded number of times."""
+        nonlocal interrupted
+        for retry in range(retries + 1):
+            # Many public servers reset a new control connection that arrives right after
+            # the previous test ends, so wait before every test except the first.
+            if manifest["attempts"] and pause:
+                try:
+                    time.sleep(pause)
+                except KeyboardInterrupt:
+                    interrupted = True
+                    return False
+            if attempt_once(destination, algorithm, repetition, order_index, retry) or interrupted:
+                return not interrupted
+        return False
+
+    def attempt_once(destination, algorithm, repetition, order_index, retry):
         nonlocal interrupted
         index = len(manifest["attempts"]) + 1
         run_id = str(uuid.uuid4())
         attempt_started = datetime.now(timezone.utc).isoformat()
         label = f" [{algorithm}, repetition {repetition}]" if len(algorithms) > 1 or repetitions > 1 else ""
+        label += f" (retry {retry})" if retry else ""
         print(f"Attempt {index}: {destination['host']}:{destination['port']}{label}", flush=True)
         try:
             result = run_test(**destination, duration=duration, timeout=timeout,
@@ -143,12 +165,12 @@ def run_experiment(servers_path, output, count=10, duration=60, interval=0.2,
         result.update(destination)
         result.update({"run_id": run_id, "attempt": index, "attempt_started_utc": attempt_started,
                        "requested_algorithm": algorithm, "repetition": repetition,
-                       "order_index": order_index})
+                       "order_index": order_index, "retry": retry})
         result_file = f"runs/attempt-{index:03d}.json"
         save_json(output / result_file, result)
         manifest["attempts"].append({**destination, "run_id": run_id, "attempt": index,
                                      "algorithm": algorithm, "repetition": repetition,
-                                     "order_index": order_index,
+                                     "order_index": order_index, "retry": retry,
                                      "status": result["status"], "result_file": result_file,
                                      "error": result.get("error")})
         if result["status"] == "success":
@@ -217,6 +239,10 @@ def main():
                      help="comma-separated algorithms, or 'default' for the OS default only (default: cubic,reno,bbr)")
     run.add_argument("-r", "--repetitions", type=int, default=3,
                      help="runs per destination and algorithm (default: 3)")
+    run.add_argument("--pause", type=float, default=5,
+                     help="seconds to wait before each test; public servers often reset back-to-back tests (default: 5)")
+    run.add_argument("--retries", type=int, default=1,
+                     help="extra tries of the same server after a failed test, each logged (default: 1)")
     run.add_argument("--seed", type=int, help="random seed; generated and recorded if omitted")
     plot = commands.add_parser("plot", help="rebuild tables/PDF from saved measurements on any supported Python host")
     plot.add_argument("directory", type=Path)
@@ -228,7 +254,7 @@ def main():
             return 0
         manifest = run_experiment(args.servers, args.output, args.count, args.duration,
                                   args.interval, args.timeout, args.max_attempts, args.seed,
-                                  args.algorithms, args.repetitions)
+                                  args.algorithms, args.repetitions, args.pause, args.retries)
         return 130 if manifest["status"] == "interrupted" else (1 if manifest["shortfall"] else 0)
     except (ValueError, OSError, StatsError, ImportError) as exc:
         print(f"experiment: {exc}", file=sys.stderr)
