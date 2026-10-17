@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Q1/Q2: public TCP uploads, statistics logs, PDF plots, and observations."""
+"""Run Q1/Q2 uploads or regenerate their tables and PDF plots."""
 
 import argparse
 import csv
@@ -67,7 +67,7 @@ def host_metadata():
 
 
 def run_experiment(servers_path, output, count=10, duration=60, interval=0.2,
-                   timeout=10, max_attempts=None, seed=None, verbose=False):
+                   timeout=10, max_attempts=None, seed=None):
     if count < 1 or type(duration) is not int or not 1 <= duration <= 86400:
         raise ValueError("count must be positive; duration must be an integer in 1..86400")
     if not all(math.isfinite(value) and value > 0 for value in (interval, timeout)):
@@ -112,7 +112,7 @@ def run_experiment(servers_path, output, count=10, duration=60, interval=0.2,
         print(f"Attempt {index}: {destination['host']}:{destination['port']}", flush=True)
         try:
             result = run_test(**destination, duration=duration, timeout=timeout,
-                              interval=interval, verbose=verbose, algorithm=baseline_algorithm)
+                              interval=interval, algorithm=baseline_algorithm)
         except ClientError as exc:
             result = {**exc.details, "status": "failed", "error": str(exc)}
         except KeyboardInterrupt as exc:
@@ -155,18 +155,16 @@ def main():
     run.add_argument("--timeout", type=float, default=10)
     run.add_argument("--max-attempts", type=int, help="total server attempts, including the initial selection (default: 2*n)")
     run.add_argument("--seed", type=int, help="random seed; generated and recorded if omitted")
-    run.add_argument("-v", "--verbose", action="store_true")
     plot = commands.add_parser("plot", help="rebuild tables/PDF from saved measurements on any supported Python host")
     plot.add_argument("directory", type=Path)
-    plot.add_argument("--representative-run", help="completed run ID for Q2 (default: first successful attempt)")
     args = parser.parse_args()
     try:
         if args.command == "plot":
-            generate_reports(args.directory, representative_run=args.representative_run)
+            generate_reports(args.directory)
             print(f"Rebuilt reports in {args.directory}")
             return 0
         manifest = run_experiment(args.servers, args.output, args.count, args.duration,
-                                  args.interval, args.timeout, args.max_attempts, args.seed, args.verbose)
+                                  args.interval, args.timeout, args.max_attempts, args.seed)
         return 130 if manifest["status"] == "interrupted" else (1 if manifest["shortfall"] else 0)
     except (ValueError, OSError, StatsError, ImportError) as exc:
         print(f"experiment: {exc}", file=sys.stderr)

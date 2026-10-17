@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Q1(a): one Python TCP upload stream using the iPerf3 wire protocol.
-
-Protocol reference: https://github.com/esnet/iperf/tree/3.17.1/src
-No iPerf3 executable, wrapper, or third-party Python packages are used.
-"""
+"""One TCP upload using the iPerf3 protocol (reference: ESnet iPerf 3.17.1)."""
 
 import json
 import math
@@ -13,7 +9,6 @@ import queue
 import select
 import socket
 import struct
-import sys
 import threading
 import time
 import uuid
@@ -160,20 +155,20 @@ def connect_control(host, port, timeout):
     raise ClientError(f"could not connect to {host}:{port}: {last_error}")
 
 
-def transmit(control, data, duration, timeout, sampler=None):
+def transmit(control, data, duration, timeout, sampler):
     """Keep sending while watching control errors, data EOF, and deadlines."""
     payload = memoryview(os.urandom(BLOCK_SIZE))
     data.setblocking(False)
-    started = last_progress = sampler.sample("baseline") if sampler else time.monotonic()
+    started = last_progress = sampler.sample("baseline")
     deadline = started + duration
-    next_sample = started + sampler.interval if sampler else deadline
+    next_sample = started + sampler.interval
     sent = offset = 0
     cpu_start = os.times()
     while True:
         now = time.monotonic()
         if now >= deadline:
             break
-        if sampler and now >= next_sample:
+        if now >= next_sample:
             now = sampler.sample()
             next_sample = now + sampler.interval
             if now >= deadline:
@@ -209,17 +204,17 @@ def transmit(control, data, duration, timeout, sampler=None):
             sent += count
             offset = (offset + count) % len(payload)
             last_progress = time.monotonic()
-    elapsed = (sampler.sample("final") if sampler else time.monotonic()) - started
+    elapsed = sampler.sample("final") - started
     cpu_end = os.times()
     user_percent = 100 * (cpu_end.user - cpu_start.user) / elapsed
     system_percent = 100 * (cpu_end.system - cpu_start.system) / elapsed
     retrans = (sampler.samples[-1]["total_retrans_segments"]
-               - sampler.samples[0]["total_retrans_segments"]) if sampler else -1
+               - sampler.samples[0]["total_retrans_segments"])
     results = {
         "cpu_util_total": user_percent + system_percent,
         "cpu_util_user": user_percent,
         "cpu_util_system": system_percent,
-        "sender_has_retransmits": 1 if sampler else 0,
+        "sender_has_retransmits": 1,
         "streams": [{
             "id": 1, "bytes": sent, "retransmits": retrans,
             "jitter": 0, "errors": 0, "packets": 0,
@@ -252,8 +247,7 @@ def validate_results(results):
         raise ClientError("invalid receiver byte count in server results")
 
 
-def run_test(host, port=5201, duration=60, timeout=10.0, verbose=False, interval=None,
-             algorithm=None):
+def run_test(host, port=5201, duration=60, timeout=10.0, interval=0.2, algorithm=None):
     """Complete one standard iPerf3 upload or raise ClientError with its stage."""
     if not host or not 1 <= port <= 65535:
         raise ValueError("host must be nonempty and port must be in 1..65535")
@@ -261,14 +255,10 @@ def run_test(host, port=5201, duration=60, timeout=10.0, verbose=False, interval
         raise ValueError("duration must be a whole number of seconds in 1..86400")
     if not math.isfinite(timeout) or timeout <= 0:
         raise ValueError("timeout must be a finite positive number of seconds")
-    if interval is not None:
-        if not math.isfinite(interval) or interval <= 0:
-            raise ValueError("sampling interval must be finite and positive")
-        try:
-            default_algorithm = check_support()
-            algorithm = default_algorithm if algorithm is None else algorithm
-        except (OSError, StatsError) as exc:
-            raise ClientError(f"TCP statistics support: {exc}") from exc
+    if not math.isfinite(interval) or interval <= 0:
+        raise ValueError("sampling interval must be finite and positive")
+    if algorithm is None:
+        algorithm = check_support()
     control = data = None
     sampler = None
     actual_algorithm = None
@@ -277,7 +267,7 @@ def run_test(host, port=5201, duration=60, timeout=10.0, verbose=False, interval
     events = []
     run_started = time.monotonic()
     started_utc = datetime.now(timezone.utc).isoformat()
-    decoding = tcp_info_metadata() if interval is not None else None
+    decoding = tcp_info_metadata()
 
     def measurements():
         return {"requested_algorithm": algorithm, "actual_algorithm": actual_algorithm,
@@ -288,8 +278,6 @@ def run_test(host, port=5201, duration=60, timeout=10.0, verbose=False, interval
     def record(direction, state):
         events.append({"elapsed_seconds": time.monotonic() - run_started,
                        "direction": direction, "state": state.name})
-        if verbose:
-            print(f"{direction}: {state.name}", file=sys.stderr, flush=True)
 
     def expect(expected):
         state = recv_state(control, time.monotonic() + timeout)
@@ -321,18 +309,15 @@ def run_test(host, port=5201, duration=60, timeout=10.0, verbose=False, interval
         stage = "data connection"
         data = socket.socket(control.family, socket.SOCK_STREAM)
         data.settimeout(timeout)
-        if algorithm is not None:
-            select_congestion_algorithm(data, algorithm)
+        select_congestion_algorithm(data, algorithm)
         # Reuse the exact control peer; a second DNS lookup could pick another server.
         data.connect(peer)
-        if algorithm is not None:
-            actual_algorithm = congestion_algorithm(data)
-            if actual_algorithm != algorithm:
-                raise StatsError(f"data socket uses {actual_algorithm!r}; expected {algorithm!r}")
-        if interval is not None:
-            # Snapshot before any protocol bytes, so delayed cookie ACKs can be excluded.
-            cookie_ack_target = read_tcp_info(data)["bytes_acked"] + len(cookie)
-            sampler = GoodputSampler(data, interval, cookie_ack_target)
+        actual_algorithm = congestion_algorithm(data)
+        if actual_algorithm != algorithm:
+            raise StatsError(f"data socket uses {actual_algorithm!r}; expected {algorithm!r}")
+        # Exclude the cookie even if its ACK arrives after payload transmission starts.
+        cookie_ack_target = read_tcp_info(data)["bytes_acked"] + len(cookie)
+        sampler = GoodputSampler(data, interval, cookie_ack_target)
         send_bytes(data, cookie, time.monotonic() + timeout)
         expect(State.TEST_START)
         expect(State.TEST_RUNNING)

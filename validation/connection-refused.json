@@ -1,6 +1,0 @@
-{
-  "status": "failed",
-  "host": "chi.speedtest.clouvider.net",
-  "port": 5202,
-  "error": "control connection: could not connect to chi.speedtest.clouvider.net:5202: [Errno 61] Connection refused"
-}

@@ -16,27 +16,21 @@ LINUX_TCP_INFO = 11
 LINUX_TCP_CONGESTION = 13
 FIELDS = {
     "snd_mss_bytes": (16, "I"),
-    "lost_segments": (32, "I"),
     "rtt_us": (68, "I"),
     "rttvar_us": (72, "I"),
     "snd_cwnd_segments": (80, "I"),
     "total_retrans_segments": (100, "I"),
     "pacing_rate_bytes_per_second": (104, "Q"),
     "bytes_acked": (120, "Q"),
-    "bytes_received": (128, "Q"),
     "delivery_rate_bytes_per_second": (160, "Q"),
-    "bytes_sent": (200, "Q"),
-    "bytes_retrans": (208, "Q"),
 }
 REQUIRED_SIZE = 128  # Last required field is the 8-byte bytes_acked at offset 120.
 FIELD_UNITS = {
-    "snd_mss_bytes": "bytes", "lost_segments": "segments (current outstanding loss)",
+    "snd_mss_bytes": "bytes",
     "rtt_us": "microseconds", "rttvar_us": "microseconds",
     "snd_cwnd_segments": "segments", "total_retrans_segments": "segments (cumulative)",
     "pacing_rate_bytes_per_second": "bytes/second", "bytes_acked": "bytes (cumulative)",
-    "bytes_received": "bytes (cumulative)", "delivery_rate_bytes_per_second": "bytes/second",
-    "bytes_sent": "bytes (cumulative, including retransmissions)",
-    "bytes_retrans": "bytes (cumulative retransmissions)",
+    "delivery_rate_bytes_per_second": "bytes/second",
 }
 
 
@@ -69,16 +63,11 @@ def tcp_info_metadata():
     return {
         "structure": "Linux UAPI struct tcp_info", "kernel_release": platform.release(),
         "machine": platform.machine(), "byte_order": sys.byteorder,
-        "alignment": "explicit byte offsets; =I is uint32, =Q is uint64; no implicit padding",
-        "socket": "live TCP upload data socket", "requested_length_bytes": TCP_INFO_SIZE,
+        "alignment": "explicit offsets; =I is uint32, =Q is uint64",
+        "requested_length_bytes": TCP_INFO_SIZE,
         "minimum_length_bytes": REQUIRED_SIZE,
         "fields": {name: {"offset_bytes": offset, "format": "=" + fmt, "unit": FIELD_UNITS[name]}
                    for name, (offset, fmt) in FIELDS.items()},
-        "interval_units": {"timestamp_utc": "ISO 8601 UTC", "monotonic_seconds": "seconds",
-                           "elapsed_seconds": "seconds", "interval_seconds": "seconds",
-                           "payload_bytes_acked": "bytes", "acked_delta_bytes": "bytes",
-                           "goodput_bps": "bits/second", "retrans_delta_segments": "segments",
-                           "retrans_rate_segments_per_second": "segments/second"},
         "goodput_formula": "8 * delta(payload_bytes_acked) / delta(monotonic_seconds)",
         "loss_proxy": "delta(total_retrans_segments); a retransmission count, not a loss probability",
         "optional_values": "null if absent; pacing MAX means unlimited; delivery rate 0 means no estimate",

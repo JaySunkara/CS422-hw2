@@ -1,4 +1,4 @@
-"""Recreate Q1(c)/Q2(b,c) reports from saved runs without sending more traffic."""
+"""Generate Q1 summary tables and Q1/Q2 PDF plots from saved measurements."""
 
 import csv
 import json
@@ -7,43 +7,11 @@ import statistics
 from collections import defaultdict
 from pathlib import Path
 
-from q2_reporting import generate_q2_reports, select_representative
-
-
-def percentile(values, fraction):
-    """Linear interpolation between adjacent sorted observations (inclusive ends)."""
-    values = sorted(values)
-    position = (len(values) - 1) * fraction
-    low = math.floor(position)
-    high = math.ceil(position)
-    return values[low] + (values[high] - values[low]) * (position - low)
-
-
-def summary_rows(runs):
-    groups = defaultdict(list)
-    for run in runs:
-        if run["status"] == "success":
-            groups[(run["host"], run["port"], run["actual_algorithm"])].append(run)
-    rows = []
-    for (host, port, algorithm), group in sorted(groups.items()):
-        samples = [sample for run in group for sample in run["samples"]
-                   if sample["goodput_bps"] is not None]
-        if not samples:
-            raise ValueError(f"Successful run for {host}:{port} has no goodput intervals")
-        rates = [sample["goodput_bps"] / 1e6 for sample in samples]
-        seconds = sum(sample["interval_seconds"] for sample in samples)
-        acked = sum(sample["acked_delta_bytes"] for sample in samples)
-        rows.append({
-            "host": host, "port": port, "actual_algorithm": algorithm,
-            "runs": len(group), "intervals": len(samples),
-            "min_goodput_mbps": min(rates),
-            "median_goodput_mbps": statistics.median(rates),
-            "mean_goodput_mbps": statistics.mean(rates),
-            "p95_goodput_mbps": percentile(rates, 0.95),
-            "overall_goodput_mbps": 8 * acked / seconds / 1e6,
-            "acknowledged_bytes": acked, "measured_seconds": seconds,
-        })
-    return rows
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.ticker import MaxNLocator
 
 
 SUMMARY_FIELDS = ["host", "port", "actual_algorithm", "runs", "intervals",
@@ -55,14 +23,59 @@ SAMPLE_FIELDS = ["run_id", "attempt", "host", "port", "actual_algorithm", "statu
                  "interval_seconds", "bytes_acked", "payload_bytes_acked",
                  "acked_delta_bytes", "goodput_bps", "tcp_info_length",
                  "snd_cwnd_segments", "snd_mss_bytes", "rtt_us", "rttvar_us",
-                 "lost_segments", "total_retrans_segments", "retrans_delta_segments",
+                 "total_retrans_segments", "retrans_delta_segments",
                  "retrans_rate_segments_per_second", "pacing_rate_bytes_per_second",
-                 "delivery_rate_bytes_per_second", "bytes_received", "bytes_sent", "bytes_retrans"]
+                 "delivery_rate_bytes_per_second"]
+
+
+def measured_samples(run):
+    # The initial baseline has no preceding interval. Keep all other samples.
+    samples = [s for s in run["samples"] if s["goodput_bps"] is not None]
+    if not samples:
+        raise ValueError(f"Run {run['run_id']} has no measured intervals")
+    for sample in samples:
+        for field in ("elapsed_seconds", "interval_seconds", "acked_delta_bytes",
+                      "goodput_bps", "snd_cwnd_segments", "rtt_us", "retrans_delta_segments"):
+            value = sample[field]
+            if not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
+                raise ValueError(f"Invalid {field} in run {run['run_id']}")
+        if sample["interval_seconds"] == 0:
+            raise ValueError("Sampling intervals must be positive")
+    return samples
+
+
+def percentile(values, fraction):
+    values = sorted(values)
+    position = (len(values) - 1) * fraction
+    low, high = math.floor(position), math.ceil(position)
+    return values[low] + (values[high] - values[low]) * (position - low)
+
+
+def summary_rows(runs):
+    groups = defaultdict(list)
+    for run in runs:
+        if run["status"] == "success":
+            groups[(run["host"], run["port"], run["actual_algorithm"])].append(run)
+    rows = []
+    for (host, port, algorithm), group in sorted(groups.items()):
+        samples = [s for run in group for s in measured_samples(run)]
+        rates = [s["goodput_bps"] / 1e6 for s in samples]
+        seconds = sum(s["interval_seconds"] for s in samples)
+        acked = sum(s["acked_delta_bytes"] for s in samples)
+        rows.append({
+            "host": host, "port": port, "actual_algorithm": algorithm,
+            "runs": len(group), "intervals": len(samples),
+            "min_goodput_mbps": min(rates), "median_goodput_mbps": statistics.median(rates),
+            "mean_goodput_mbps": statistics.mean(rates), "p95_goodput_mbps": percentile(rates, 0.95),
+            "overall_goodput_mbps": 8 * acked / seconds / 1e6,
+            "acknowledged_bytes": acked, "measured_seconds": seconds,
+        })
+    return rows
 
 
 def write_tables(directory, runs, summaries):
     with (directory / "samples.csv").open("w", newline="", encoding="utf-8") as stream:
-        writer = csv.DictWriter(stream, fieldnames=SAMPLE_FIELDS)
+        writer = csv.DictWriter(stream, fieldnames=SAMPLE_FIELDS, extrasaction="ignore")
         writer.writeheader()
         for run in runs:
             context = {name: run.get(name) for name in SAMPLE_FIELDS[:6]}
@@ -72,78 +85,108 @@ def write_tables(directory, runs, summaries):
         writer = csv.DictWriter(stream, fieldnames=SUMMARY_FIELDS)
         writer.writeheader()
         writer.writerows(summaries)
-    lines = ["| Destination | Algorithm | Min | Median | Mean | p95 | Overall |",
-             "| --- | --- | ---: | ---: | ---: | ---: | ---: |"]
-    for row in summaries:
-        values = [f"{row[field]:.3f}" for field in SUMMARY_FIELDS[5:10]]
-        lines.append(f"| {row['host']}:{row['port']} | {row['actual_algorithm']} | "
-                     + " | ".join(values) + " |")
-    lines.extend(["", "All rates are Mbit/s (1 Mbit/s = 1,000,000 bit/s).",
-                  "Min/median/mean/p95 use all valid sending intervals of successful runs,",
-                  "including startup, zeros, and the final partial interval. Mean is the",
-                  "unweighted arithmetic mean; p95 uses linear interpolation at 0.95*(N-1).",
-                  "Overall = 8*sum(acknowledged byte deltas)/sum(actual interval seconds).",
-                  "Failed/interrupted runs are logged but excluded from this table.", ""])
-    (directory / "summary.md").write_text("\n".join(lines), encoding="utf-8")
 
 
 def plot_goodput(directory, runs, manifest):
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    from matplotlib.backends.backend_pdf import PdfPages
-
-    groups = defaultdict(list)
-    for run in runs:
-        if run["status"] == "success":
-            groups[(run["host"], run["port"], run["actual_algorithm"])].append(run)
-    items = sorted(groups.items())
+    completed = [run for run in runs if run["status"] == "success"]
     with PdfPages(directory / "goodput.pdf") as pdf:
-        for start in range(0, max(1, len(items)), 4):
-            batch = items[start:start + 4]
-            columns = min(2, max(1, len(batch)))
+        for start in range(0, max(1, len(completed)), 4):
+            batch = completed[start:start + 4]
+            columns = 2 if len(batch) > 1 else 1
             rows = math.ceil(max(1, len(batch)) / columns)
             fig, axes = plt.subplots(rows, columns, figsize=(12, 4 * rows + 1), squeeze=False)
             for ax in axes.flat:
                 ax.set_visible(False)
-            if not items:
+            if not completed:
                 axes[0, 0].set_visible(True)
                 axes[0, 0].axis("off")
-                axes[0, 0].text(0, 0.7, "No completed measurement runs.\nSee experiment.json for failures.",
-                                transform=axes[0, 0].transAxes)
-            for ax, ((host, port, algorithm), group) in zip(axes.flat, batch):
+                axes[0, 0].text(0, 0.5, "No completed runs. See experiment.json for failures.")
+            for ax, run in zip(axes.flat, batch):
                 ax.set_visible(True)
-                for run in group:
-                    samples = [sample for sample in run["samples"] if sample["goodput_bps"] is not None]
-                    ax.plot([sample["elapsed_seconds"] for sample in samples],
-                            [sample["goodput_bps"] / 1e6 for sample in samples],
-                            marker=".", linewidth=1.3, label=run["run_id"][:8])
-                ax.set_title(f"{host}:{port}\n{algorithm}", fontsize=10)
+                samples = measured_samples(run)
+                ax.plot([s["elapsed_seconds"] for s in samples],
+                        [s["goodput_bps"] / 1e6 for s in samples], linewidth=1.2)
+                ax.set_title(f"{run['host']}:{run['port']} | {run['actual_algorithm']}\n"
+                             f"run {run['run_id'][:8]}", fontsize=10)
                 ax.set_xlabel("Elapsed sending time (s)")
                 ax.set_ylabel("Acknowledged goodput (Mbit/s)")
                 ax.set_ylim(bottom=0)
                 ax.grid(alpha=0.25)
-                if len(group) > 1:
-                    ax.legend(fontsize=8)
-            fig.suptitle(f"TCP acknowledged goodput | {manifest['successful_destinations']}/"
-                         f"{manifest['requested_destinations']} destinations completed", fontsize=14)
-            fig.text(0.5, 0.015, "Each point averages newly acknowledged payload bytes over the preceding actual interval.",
-                     ha="center", fontsize=9)
-            fig.tight_layout(rect=(0, 0.04, 1, 0.94))
+            fig.suptitle(f"Q1: {len(completed)}/{manifest['requested_destinations']} destinations completed")
+            fig.subplots_adjust(left=0.09, right=0.98, bottom=0.12, top=0.84,
+                                hspace=0.65, wspace=0.28)
             pdf.savefig(fig)
-            if start == 0:
-                fig.savefig(directory / "goodput-preview.png", dpi=130)
             plt.close(fig)
 
 
-def generate_reports(directory, representative_run=None):
+def plot_tcp_metrics(directory, run):
+    samples = measured_samples(run)
+    elapsed = [s["elapsed_seconds"] for s in samples]
+    goodput = [s["goodput_bps"] / 1e6 for s in samples]
+    metrics = [
+        ("Congestion window", "snd_cwnd (segments)", [s["snd_cwnd_segments"] for s in samples]),
+        ("Smoothed RTT", "RTT (ms)", [s["rtt_us"] / 1000 for s in samples]),
+        ("Loss proxy", "Retransmitted segments / interval", [s["retrans_delta_segments"] for s in samples]),
+    ]
+    identity = f"{run['host']}:{run['port']} | {run['actual_algorithm']} | run {run['run_id'][:8]}"
+    fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+    for index, (ax, (title, label, values)) in enumerate(zip(
+            axes.flat, metrics + [("Acknowledged goodput", "Goodput (Mbit/s)", goodput)])):
+        if index == 2:
+            ax.bar([s["elapsed_seconds"] - s["interval_seconds"] for s in samples], values,
+                   width=[s["interval_seconds"] for s in samples], align="edge")
+            ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+            if not any(values):
+                ax.text(0.5, 0.5, "No retransmissions observed", transform=ax.transAxes, ha="center")
+        else:
+            ax.plot(elapsed, values, linewidth=1.2)
+        ax.set(title=title, xlabel="Elapsed sending time (s)", ylabel=label, xlim=(0, elapsed[-1]))
+        ax.set_ylim(0, max(values) * 1.05 if any(values) else 1)
+        ax.grid(alpha=0.25)
+    fig.suptitle(f"Q2: TCP statistics during upload\n{identity}")
+    fig.text(0.5, 0.02, "cwnd/RTT are endpoint snapshots; goodput/loss cover the preceding interval.",
+             ha="center", fontsize=9)
+    fig.tight_layout(rect=(0, 0.04, 1, 0.91))
+    fig.savefig(directory / "q2-timeseries.pdf")
+    plt.close(fig)
+
+    fig, axes = plt.subplots(1, 3, figsize=(13.5, 5))
+    for index, (ax, (title, label, values)) in enumerate(zip(axes, metrics)):
+        ax.scatter(goodput, values, s=18)
+        ax.set(title=title + " vs goodput", xlabel="Goodput (Mbit/s)", ylabel=label)
+        ax.set_xlim(left=0)
+        ax.set_ylim(-0.05 if not any(values) else 0, max(values) * 1.05 if any(values) else 1)
+        ax.grid(alpha=0.25)
+        if index == 2:
+            ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+            if not any(values):
+                ax.text(0.5, 0.7, "Loss proxy is constant at zero", transform=ax.transAxes, ha="center", fontsize=9)
+    fig.suptitle(f"Q2: TCP metrics and goodput\n{identity}")
+    fig.text(0.5, 0.02, "Each point uses the same sampling interval. Correlation does not establish causation.",
+             ha="center", fontsize=9)
+    fig.tight_layout(rect=(0, 0.06, 1, 0.85))
+    fig.savefig(directory / "q2-scatter.pdf")
+    plt.close(fig)
+
+
+def generate_reports(directory):
     directory = Path(directory)
     manifest = json.loads((directory / "experiment.json").read_text(encoding="utf-8"))
     runs = [json.loads((directory / attempt["result_file"]).read_text(encoding="utf-8"))
             for attempt in manifest["attempts"]]
-    representative = select_representative(runs, manifest.get("baseline_algorithm"), representative_run)
+    completed = [run for run in runs if run["status"] == "success"]
+    # Q2 always uses the first success, regardless of how interesting its curve is.
+    if completed:
+        baseline = manifest.get("baseline_algorithm", completed[0]["actual_algorithm"])
+        if any(run["actual_algorithm"] != baseline for run in completed):
+            raise ValueError("Q1/Q2 runs must use the same recorded baseline algorithm")
     summaries = summary_rows(runs)
     write_tables(directory, runs, summaries)
     plot_goodput(directory, runs, manifest)
-    generate_q2_reports(directory, representative, explicit_selection=representative_run is not None)
+    if completed:
+        plot_tcp_metrics(directory, completed[0])
+        print(f"Q2 representative: {completed[0]['run_id']} ({completed[0]['actual_algorithm']})")
+    else:
+        for name in ("q2-timeseries.pdf", "q2-scatter.pdf"):
+            (directory / name).unlink(missing_ok=True)
     return summaries

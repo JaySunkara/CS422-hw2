@@ -1,3 +1,0 @@
-host,port,actual_algorithm,runs,intervals,min_goodput_mbps,median_goodput_mbps,mean_goodput_mbps,p95_goodput_mbps,overall_goodput_mbps,acknowledged_bytes,measured_seconds
-speedtest.hkg12.hk.leaseweb.net,5209,cubic,1,10,0.0,44.87783706235763,54.50091148327312,135.4630454378316,54.51510501855806,13652793,2.003524416999994
-speedtest.lax12.us.leaseweb.net,5207,cubic,1,10,86.89163539912376,302.3840532734335,288.53276797567776,381.63852661162207,287.9608760669036,72031000,2.0011329590000173
