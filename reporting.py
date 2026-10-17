@@ -1,4 +1,4 @@
-"""Generate Q1 summary tables and Q1/Q2 PDF plots from saved measurements."""
+"""Generate summary tables and Q1/Q2 PDF plots; Q3 directories also use comparison.py."""
 
 import csv
 import json
@@ -25,7 +25,7 @@ SAMPLE_FIELDS = ["run_id", "attempt", "host", "port", "actual_algorithm", "statu
                  "snd_cwnd_segments", "snd_mss_bytes", "rtt_us", "rttvar_us",
                  "total_retrans_segments", "retrans_delta_segments",
                  "retrans_rate_segments_per_second", "pacing_rate_bytes_per_second",
-                 "delivery_rate_bytes_per_second"]
+                 "delivery_rate_bytes_per_second", "min_rtt_us"]
 
 
 def measured_samples(run):
@@ -175,14 +175,27 @@ def generate_reports(directory):
     runs = [json.loads((directory / attempt["result_file"]).read_text(encoding="utf-8"))
             for attempt in manifest["attempts"]]
     completed = [run for run in runs if run["status"] == "success"]
-    # Q2 always uses the first success, regardless of how interesting its curve is.
-    if completed:
-        baseline = manifest.get("baseline_algorithm", completed[0]["actual_algorithm"])
-        if any(run["actual_algorithm"] != baseline for run in completed):
-            raise ValueError("Q1/Q2 runs must use the same recorded baseline algorithm")
+    # Older Q1/Q2 manifests record only the baseline; Q3 manifests list every algorithm.
+    algorithms = manifest.get("algorithms") or [manifest.get(
+        "baseline_algorithm", completed[0]["actual_algorithm"] if completed else None)]
+    if any(run["actual_algorithm"] not in algorithms for run in completed):
+        raise ValueError(f"runs must use the recorded algorithms: {', '.join(map(str, algorithms))}")
+    if len(algorithms) > 1 or manifest.get("repetitions", 1) > 1:
+        from comparison import generate_comparison
+        # Compare algorithms only on admitted destinations (complete first round). A rejected
+        # destination's partial successes stay in samples.csv but not in summaries or plots.
+        admitted = {(d["host"], d["port"]) for d in manifest.get("admitted_destinations", [])}
+        compared = [run for run in runs if (run.get("host"), run.get("port")) in admitted] if admitted else runs
+        summaries = summary_rows(compared)
+        write_tables(directory, runs, summaries)
+        for name in ("q2-timeseries.pdf", "q2-scatter.pdf"):
+            (directory / name).unlink(missing_ok=True)
+        generate_comparison(directory, compared, manifest)
+        return summaries
     summaries = summary_rows(runs)
     write_tables(directory, runs, summaries)
     plot_goodput(directory, runs, manifest)
+    # Q2 always uses the first success, regardless of how interesting its curve is.
     if completed:
         plot_tcp_metrics(directory, completed[0])
         print(f"Q2 representative: {completed[0]['run_id']} ({completed[0]['actual_algorithm']})")

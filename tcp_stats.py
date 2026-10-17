@@ -22,12 +22,13 @@ FIELDS = {
     "total_retrans_segments": (100, "I"),
     "pacing_rate_bytes_per_second": (104, "Q"),
     "bytes_acked": (120, "Q"),
+    "min_rtt_us": (148, "I"),
     "delivery_rate_bytes_per_second": (160, "Q"),
 }
 REQUIRED_SIZE = 128  # Last required field is the 8-byte bytes_acked at offset 120.
 FIELD_UNITS = {
     "snd_mss_bytes": "bytes",
-    "rtt_us": "microseconds", "rttvar_us": "microseconds",
+    "rtt_us": "microseconds", "rttvar_us": "microseconds", "min_rtt_us": "microseconds (kernel windowed minimum)",
     "snd_cwnd_segments": "segments", "total_retrans_segments": "segments (cumulative)",
     "pacing_rate_bytes_per_second": "bytes/second", "bytes_acked": "bytes (cumulative)",
     "delivery_rate_bytes_per_second": "bytes/second",
@@ -97,6 +98,21 @@ def check_support():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         read_tcp_info(sock)
         return congestion_algorithm(sock)
+
+
+def check_algorithms(names):
+    """Fail before any traffic if this user cannot select every requested algorithm."""
+    check_support()
+    for name in names:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            try:
+                select_congestion_algorithm(sock, name)
+            except OSError as exc:
+                raise StatsError(
+                    f"cannot select congestion algorithm {name!r}: {exc}. It must appear in "
+                    "/proc/sys/net/ipv4/tcp_available_congestion_control (e.g. sudo modprobe tcp_bbr) "
+                    "and, for non-root users, in tcp_allowed_congestion_control."
+                ) from exc
 
 
 def interval_values(previous, current):
