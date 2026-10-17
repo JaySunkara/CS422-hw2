@@ -1,0 +1,14 @@
+{
+  "layout_fields_checked": 12,
+  "successful_runs": 1,
+  "csv_samples": 16,
+  "intervals_recomputed": 15,
+  "actual_algorithm": "cubic",
+  "kernel_release": "6.10.14-linuxkit",
+  "tcp_info_lengths": [
+    248
+  ],
+  "optional_fields_available": true,
+  "json_csv_values_match": true,
+  "goodput_and_retransmission_values_match": true
+}

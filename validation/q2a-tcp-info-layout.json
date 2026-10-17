@@ -1,0 +1,1 @@
+{"snd_mss_bytes":16,"lost_segments":32,"rtt_us":68,"rttvar_us":72,"snd_cwnd_segments":80,"total_retrans_segments":100,"pacing_rate_bytes_per_second":104,"bytes_acked":120,"bytes_acked_width":8,"bytes_received":128,"delivery_rate_bytes_per_second":160,"bytes_sent":200,"bytes_retrans":208}

@@ -1,0 +1,37 @@
+{
+  "run_id": "bb4f212f-f6f9-4aaf-ab06-371c6ff9bffe",
+  "actual_algorithm": "cubic",
+  "measured_intervals": 99,
+  "csv_snapshots": 100,
+  "goodput_and_retrans_deltas_recomputed": true,
+  "raw_json_unchanged_after_offline_regeneration": true,
+  "regeneration_network": "disabled",
+  "observation_statistics_match": true,
+  "overall_goodput_mbps": 219.13957514105292,
+  "pdf_pages": {
+    "q2-timeseries.pdf": 1,
+    "q2-scatter.pdf": 1
+  },
+  "statistics": {
+    "cwnd_segments": {
+      "min": 40,
+      "median": 40,
+      "max": 40
+    },
+    "rtt_ms": {
+      "min": 0.193,
+      "median": 0.78,
+      "max": 16.068
+    },
+    "retrans_segments_per_interval": {
+      "min": 0,
+      "median": 0,
+      "max": 0
+    },
+    "goodput_mbps": {
+      "min": 58.318889120664544,
+      "median": 225.04050708629745,
+      "max": 338.179906125079
+    }
+  }
+}

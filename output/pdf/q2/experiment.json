@@ -1,0 +1,52 @@
+{
+  "started_utc": "2026-10-17T17:43:06.575416+00:00",
+  "status": "complete",
+  "requested_destinations": 1,
+  "successful_destinations": 1,
+  "shortfall": 0,
+  "seed": 422,
+  "max_attempts": 2,
+  "duration_seconds": 20,
+  "sampling_interval_seconds": 0.2,
+  "timeout_seconds": 5.0,
+  "host_metadata": {
+    "platform": "Linux-6.10.14-linuxkit-aarch64-with-glibc2.39",
+    "kernel": "6.10.14-linuxkit",
+    "python": "3.12.3",
+    "tcp_available_congestion_control": "reno cubic",
+    "tcp_congestion_control": "cubic"
+  },
+  "baseline_algorithm": "cubic",
+  "algorithm_policy": "OS default at experiment start",
+  "matplotlib_version": "3.6.3",
+  "server_list_source": "https://iperf3serverlist.net/",
+  "input_server_file": "/app/servers.csv",
+  "initial_selection": [
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207
+    }
+  ],
+  "candidate_order": [
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209
+    }
+  ],
+  "attempts": [
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207,
+      "run_id": "bb4f212f-f6f9-4aaf-ab06-371c6ff9bffe",
+      "attempt": 1,
+      "status": "success",
+      "result_file": "runs/attempt-001.json",
+      "error": null
+    }
+  ],
+  "finished_utc": "2026-10-17T17:43:27.087074+00:00"
+}

@@ -1,0 +1,129 @@
+{
+  "samples": [
+    {
+      "tcp_info_length": 248,
+      "snd_mss_bytes": 32704,
+      "lost_segments": 0,
+      "rtt_us": 190101,
+      "rttvar_us": 112000,
+      "snd_cwnd_segments": 10,
+      "total_retrans_segments": 0,
+      "bytes_acked": 38,
+      "sample_kind": "baseline",
+      "timestamp_utc": "2026-10-17T17:24:44.188472+00:00",
+      "monotonic_seconds": 884.111127733,
+      "elapsed_seconds": 0,
+      "payload_bytes_acked": 0,
+      "interval_seconds": null,
+      "acked_delta_bytes": null,
+      "goodput_bps": null,
+      "retrans_delta_segments": null
+    },
+    {
+      "tcp_info_length": 248,
+      "snd_mss_bytes": 65483,
+      "lost_segments": 0,
+      "rtt_us": 98700,
+      "rttvar_us": 115722,
+      "snd_cwnd_segments": 19,
+      "total_retrans_segments": 0,
+      "bytes_acked": 785009,
+      "sample_kind": "interval",
+      "timestamp_utc": "2026-10-17T17:24:44.394671+00:00",
+      "monotonic_seconds": 884.317306983,
+      "elapsed_seconds": 0.20617924999999104,
+      "payload_bytes_acked": 784971,
+      "interval_seconds": 0.20617924999999104,
+      "acked_delta_bytes": 784971,
+      "goodput_bps": 30457807.951092426,
+      "retrans_delta_segments": 0
+    },
+    {
+      "tcp_info_length": 248,
+      "snd_mss_bytes": 65483,
+      "lost_segments": 0,
+      "rtt_us": 98700,
+      "rttvar_us": 115722,
+      "snd_cwnd_segments": 19,
+      "total_retrans_segments": 0,
+      "bytes_acked": 785009,
+      "sample_kind": "interval",
+      "timestamp_utc": "2026-10-17T17:24:44.599960+00:00",
+      "monotonic_seconds": 884.522618066,
+      "elapsed_seconds": 0.41149033299996063,
+      "payload_bytes_acked": 784971,
+      "interval_seconds": 0.20531108299996959,
+      "acked_delta_bytes": 0,
+      "goodput_bps": 0.0,
+      "retrans_delta_segments": 0
+    },
+    {
+      "tcp_info_length": 248,
+      "snd_mss_bytes": 65483,
+      "lost_segments": 0,
+      "rtt_us": 26569,
+      "rttvar_us": 47138,
+      "snd_cwnd_segments": 42,
+      "total_retrans_segments": 0,
+      "bytes_acked": 2162695,
+      "sample_kind": "interval",
+      "timestamp_utc": "2026-10-17T17:24:44.802937+00:00",
+      "monotonic_seconds": 884.725590233,
+      "elapsed_seconds": 0.6144625000000588,
+      "payload_bytes_acked": 2162657,
+      "interval_seconds": 0.20297216700009812,
+      "acked_delta_bytes": 1377686,
+      "goodput_bps": 54300489.386777215,
+      "retrans_delta_segments": 0
+    },
+    {
+      "tcp_info_length": 248,
+      "snd_mss_bytes": 65483,
+      "lost_segments": 0,
+      "rtt_us": 23334,
+      "rttvar_us": 41821,
+      "snd_cwnd_segments": 42,
+      "total_retrans_segments": 0,
+      "bytes_acked": 2260487,
+      "sample_kind": "interval",
+      "timestamp_utc": "2026-10-17T17:24:45.004462+00:00",
+      "monotonic_seconds": 884.927113192,
+      "elapsed_seconds": 0.8159854589999895,
+      "payload_bytes_acked": 2260449,
+      "interval_seconds": 0.20152295899993078,
+      "acked_delta_bytes": 97792,
+      "goodput_bps": 3882118.463734292,
+      "retrans_delta_segments": 0
+    }
+  ],
+  "actual_algorithm": "cubic",
+  "protocol_events": [
+    {
+      "elapsed_seconds": 0.43041966700002376,
+      "direction": "receive",
+      "state": "PARAM_EXCHANGE"
+    },
+    {
+      "elapsed_seconds": 0.6497344590000012,
+      "direction": "receive",
+      "state": "CREATE_STREAMS"
+    },
+    {
+      "elapsed_seconds": 1.170280833999982,
+      "direction": "receive",
+      "state": "TEST_START"
+    },
+    {
+      "elapsed_seconds": 1.1704352090000611,
+      "direction": "receive",
+      "state": "TEST_RUNNING"
+    }
+  ],
+  "status": "failed",
+  "error": "upload: premature EOF: received 0 of 1 expected bytes",
+  "host": "96.45.38.22",
+  "port": 30004,
+  "run_id": "bb1afc4f-b27a-4713-b7b5-e7922e129c41",
+  "attempt": 8,
+  "attempt_started_utc": "2026-10-17T17:24:43.017244+00:00"
+}

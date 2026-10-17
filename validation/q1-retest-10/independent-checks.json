@@ -1,0 +1,13 @@
+{
+  "successful_destinations": 10,
+  "total_attempts": 12,
+  "failed_attempts": 2,
+  "successful_intervals_verified": 150,
+  "all_csv_snapshots_verified": 165,
+  "summary_rows_verified": 10,
+  "pdf_pages_verified": 3,
+  "independent_summary_reference": "NumPy min/median/mean/percentile",
+  "unit_tests_passed_macos": 38,
+  "unit_tests_passed_linux": 38,
+  "execution_kernel": "6.10.14-linuxkit"
+}
