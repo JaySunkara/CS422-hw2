@@ -1,0 +1,733 @@
+{
+  "started_utc": "2026-10-18T21:19:37.155363+00:00",
+  "status": "complete",
+  "requested_destinations": 5,
+  "successful_destinations": 5,
+  "shortfall": 0,
+  "seed": 422,
+  "max_attempts": 10,
+  "duration_seconds": 30,
+  "sampling_interval_seconds": 0.2,
+  "timeout_seconds": 10,
+  "host_metadata": {
+    "platform": "Linux-7.0.0-30-generic-aarch64-with-glibc2.43",
+    "kernel": "7.0.0-30-generic",
+    "python": "3.14.4",
+    "tcp_available_congestion_control": "reno cubic bbr",
+    "tcp_allowed_congestion_control": "reno cubic bbr",
+    "tcp_congestion_control": "cubic"
+  },
+  "algorithms": [
+    "cubic",
+    "reno",
+    "bbr"
+  ],
+  "repetitions": 3,
+  "pause_seconds": 5,
+  "retries_per_run": 1,
+  "algorithm_policy": "fixed list; order rotated each repetition",
+  "matplotlib_version": "3.10.7+dfsg1",
+  "server_list_source": "https://iperf3serverlist.net/",
+  "input_server_file": "/home/ubuntu/CS422-hw2/servers.csv",
+  "initial_selection": [
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202
+    }
+  ],
+  "candidate_order": [
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202
+    },
+    {
+      "host": "154.81.51.4",
+      "port": 5201
+    },
+    {
+      "host": "185.180.12.40",
+      "port": 5201
+    },
+    {
+      "host": "96.45.38.22",
+      "port": 30004
+    },
+    {
+      "host": "speedtest1.cwpanama.net",
+      "port": 5506
+    },
+    {
+      "host": "speedtest.wtnet.de",
+      "port": 5209
+    }
+  ],
+  "admitted_destinations": [
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202
+    }
+  ],
+  "failed_later_runs": 0,
+  "attempts": [
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207,
+      "run_id": "2bd94bb6-746b-4ebd-9f77-036a28dac0ec",
+      "attempt": 1,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-001.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207,
+      "run_id": "20ac5c17-30d3-43d6-9798-3923d3a6f1f4",
+      "attempt": 2,
+      "algorithm": "reno",
+      "repetition": 1,
+      "order_index": 2,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-002.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207,
+      "run_id": "b8f27b5b-88a8-41e8-91be-a596e4681d81",
+      "attempt": 3,
+      "algorithm": "bbr",
+      "repetition": 1,
+      "order_index": 3,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-003.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209,
+      "run_id": "546415fd-6168-47ba-b037-4da723b64df2",
+      "attempt": 4,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "failed",
+      "result_file": "runs/attempt-004.json",
+      "error": "upload: premature EOF: received 0 of 1 expected bytes"
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209,
+      "run_id": "4eee238a-fb99-49ef-84f2-1382af28122d",
+      "attempt": 5,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 1,
+      "status": "success",
+      "result_file": "runs/attempt-005.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209,
+      "run_id": "d1f84f0a-6e8b-4a97-860f-6d720cac952c",
+      "attempt": 6,
+      "algorithm": "reno",
+      "repetition": 1,
+      "order_index": 2,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-006.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209,
+      "run_id": "99142028-b278-4550-ac5f-3e59f1ccfcdd",
+      "attempt": 7,
+      "algorithm": "bbr",
+      "repetition": 1,
+      "order_index": 3,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-007.json",
+      "error": null
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201,
+      "run_id": "deb4b056-bcb2-463b-9df3-98c15a089217",
+      "attempt": 8,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-008.json",
+      "error": null
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201,
+      "run_id": "ea22db41-b563-47a3-8d95-bf8f91616326",
+      "attempt": 9,
+      "algorithm": "reno",
+      "repetition": 1,
+      "order_index": 2,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-009.json",
+      "error": null
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201,
+      "run_id": "0b306732-12a3-409e-96a5-566c354b2768",
+      "attempt": 10,
+      "algorithm": "bbr",
+      "repetition": 1,
+      "order_index": 3,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-010.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205,
+      "run_id": "05915031-fbb5-4cf1-82e7-a92975743a26",
+      "attempt": 11,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-011.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205,
+      "run_id": "373508de-f616-4841-8aa2-d5269739504c",
+      "attempt": 12,
+      "algorithm": "reno",
+      "repetition": 1,
+      "order_index": 2,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-012.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205,
+      "run_id": "685827eb-ea11-4fce-b477-c989883f34d7",
+      "attempt": 13,
+      "algorithm": "bbr",
+      "repetition": 1,
+      "order_index": 3,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-013.json",
+      "error": null
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202,
+      "run_id": "2e201f4d-7a15-497b-9062-af7b599969a3",
+      "attempt": 14,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-014.json",
+      "error": null
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202,
+      "run_id": "45f7e032-6638-4d24-8bcb-ff487aeed9a2",
+      "attempt": 15,
+      "algorithm": "reno",
+      "repetition": 1,
+      "order_index": 2,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-015.json",
+      "error": null
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202,
+      "run_id": "f58679ac-9762-472c-b195-edad5bb659ba",
+      "attempt": 16,
+      "algorithm": "bbr",
+      "repetition": 1,
+      "order_index": 3,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-016.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207,
+      "run_id": "91722b37-b5fe-453a-9ebf-695bcdb35785",
+      "attempt": 17,
+      "algorithm": "reno",
+      "repetition": 2,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-017.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207,
+      "run_id": "fe9d6226-4aa9-4417-9cd4-f27c8173f7d6",
+      "attempt": 18,
+      "algorithm": "bbr",
+      "repetition": 2,
+      "order_index": 2,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-018.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207,
+      "run_id": "9b4bebd2-7d47-44cf-a545-786cb6d91b11",
+      "attempt": 19,
+      "algorithm": "cubic",
+      "repetition": 2,
+      "order_index": 3,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-019.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209,
+      "run_id": "486f17ad-4ceb-4935-b486-846b8752f4ff",
+      "attempt": 20,
+      "algorithm": "reno",
+      "repetition": 2,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-020.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209,
+      "run_id": "6957cc49-477b-4382-bc5e-54108660fa67",
+      "attempt": 21,
+      "algorithm": "bbr",
+      "repetition": 2,
+      "order_index": 2,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-021.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209,
+      "run_id": "5246d077-1c2f-4a7e-8a38-79260696de0b",
+      "attempt": 22,
+      "algorithm": "cubic",
+      "repetition": 2,
+      "order_index": 3,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-022.json",
+      "error": null
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201,
+      "run_id": "dd317c1b-d16d-46d8-a77a-7289506aec80",
+      "attempt": 23,
+      "algorithm": "reno",
+      "repetition": 2,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-023.json",
+      "error": null
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201,
+      "run_id": "68eb7274-086d-4c58-87ef-5d0b88492e8e",
+      "attempt": 24,
+      "algorithm": "bbr",
+      "repetition": 2,
+      "order_index": 2,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-024.json",
+      "error": null
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201,
+      "run_id": "2f7bd75d-4489-445a-9366-a2b9ba668e97",
+      "attempt": 25,
+      "algorithm": "cubic",
+      "repetition": 2,
+      "order_index": 3,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-025.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205,
+      "run_id": "5e678da7-4791-4167-a33b-65624876ff16",
+      "attempt": 26,
+      "algorithm": "reno",
+      "repetition": 2,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-026.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205,
+      "run_id": "09b9cf6b-da19-4c98-9f0c-572bbbebfba2",
+      "attempt": 27,
+      "algorithm": "bbr",
+      "repetition": 2,
+      "order_index": 2,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-027.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205,
+      "run_id": "c3965e14-828c-4178-aeaf-587916a5023a",
+      "attempt": 28,
+      "algorithm": "cubic",
+      "repetition": 2,
+      "order_index": 3,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-028.json",
+      "error": null
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202,
+      "run_id": "d88e5ac9-29ad-436c-84a2-afd9af9f2e41",
+      "attempt": 29,
+      "algorithm": "reno",
+      "repetition": 2,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-029.json",
+      "error": null
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202,
+      "run_id": "998c87bb-21fd-48f8-b54a-48655a3d24e5",
+      "attempt": 30,
+      "algorithm": "bbr",
+      "repetition": 2,
+      "order_index": 2,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-030.json",
+      "error": null
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202,
+      "run_id": "cab10fd1-0b3f-4406-9040-f0155239746d",
+      "attempt": 31,
+      "algorithm": "cubic",
+      "repetition": 2,
+      "order_index": 3,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-031.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207,
+      "run_id": "76a0014a-6e18-4ea1-bb1d-d3f6ac506088",
+      "attempt": 32,
+      "algorithm": "bbr",
+      "repetition": 3,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-032.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207,
+      "run_id": "59ebe93f-03f8-4aac-8611-02bb2fb9b67b",
+      "attempt": 33,
+      "algorithm": "cubic",
+      "repetition": 3,
+      "order_index": 2,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-033.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207,
+      "run_id": "7cb6aac7-76d5-4d19-9a0b-9db81eb93e55",
+      "attempt": 34,
+      "algorithm": "reno",
+      "repetition": 3,
+      "order_index": 3,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-034.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209,
+      "run_id": "08562183-c4b0-4f7b-a1c8-489211ad939d",
+      "attempt": 35,
+      "algorithm": "bbr",
+      "repetition": 3,
+      "order_index": 1,
+      "retry": 0,
+      "status": "failed",
+      "result_file": "runs/attempt-035.json",
+      "error": "upload: premature EOF: received 0 of 1 expected bytes"
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209,
+      "run_id": "eec45867-ef2c-4367-ad94-bb4831cf9d7e",
+      "attempt": 36,
+      "algorithm": "bbr",
+      "repetition": 3,
+      "order_index": 1,
+      "retry": 1,
+      "status": "success",
+      "result_file": "runs/attempt-036.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209,
+      "run_id": "53f7b1b9-a413-465a-b10d-e0d3b29e03fc",
+      "attempt": 37,
+      "algorithm": "cubic",
+      "repetition": 3,
+      "order_index": 2,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-037.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209,
+      "run_id": "c0941ef3-8613-4524-9541-57854f6dd8a1",
+      "attempt": 38,
+      "algorithm": "reno",
+      "repetition": 3,
+      "order_index": 3,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-038.json",
+      "error": null
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201,
+      "run_id": "58180840-1438-4f30-b643-46dc23e86d2e",
+      "attempt": 39,
+      "algorithm": "bbr",
+      "repetition": 3,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-039.json",
+      "error": null
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201,
+      "run_id": "9d5446f1-7639-4fcc-a81b-60aa53aaa787",
+      "attempt": 40,
+      "algorithm": "cubic",
+      "repetition": 3,
+      "order_index": 2,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-040.json",
+      "error": null
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201,
+      "run_id": "3dae5769-b5cf-4098-abfb-c0b8ea0f2df7",
+      "attempt": 41,
+      "algorithm": "reno",
+      "repetition": 3,
+      "order_index": 3,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-041.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205,
+      "run_id": "5a8a4883-c849-4158-a3e4-1f079ec5c3b2",
+      "attempt": 42,
+      "algorithm": "bbr",
+      "repetition": 3,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-042.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205,
+      "run_id": "06891aa1-8041-4983-b6de-29940ac70b45",
+      "attempt": 43,
+      "algorithm": "cubic",
+      "repetition": 3,
+      "order_index": 2,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-043.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205,
+      "run_id": "45059788-c6a4-4345-9d5a-8d3aedd58ec4",
+      "attempt": 44,
+      "algorithm": "reno",
+      "repetition": 3,
+      "order_index": 3,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-044.json",
+      "error": null
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202,
+      "run_id": "cb44d1b7-b352-4131-aabf-de61b7bd1983",
+      "attempt": 45,
+      "algorithm": "bbr",
+      "repetition": 3,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-045.json",
+      "error": null
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202,
+      "run_id": "2f400882-0001-4dcb-a4ce-162ea62bdb0e",
+      "attempt": 46,
+      "algorithm": "cubic",
+      "repetition": 3,
+      "order_index": 2,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-046.json",
+      "error": null
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202,
+      "run_id": "fb7fcecc-2f46-4bab-8f06-e2c0e4f66191",
+      "attempt": 47,
+      "algorithm": "reno",
+      "repetition": 3,
+      "order_index": 3,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-047.json",
+      "error": null
+    }
+  ],
+  "finished_utc": "2026-10-18T21:46:58.079810+00:00"
+}

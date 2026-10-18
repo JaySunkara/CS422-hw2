@@ -1,0 +1,210 @@
+{
+  "requested_algorithm": "bbr",
+  "actual_algorithm": "bbr",
+  "sampling_interval_seconds": 0.2,
+  "tcp_info_decoding": {
+    "structure": "Linux UAPI struct tcp_info",
+    "kernel_release": "7.0.0-30-generic",
+    "machine": "aarch64",
+    "byte_order": "little",
+    "alignment": "explicit offsets; =I is uint32, =Q is uint64",
+    "requested_length_bytes": 256,
+    "minimum_length_bytes": 128,
+    "fields": {
+      "snd_mss_bytes": {
+        "offset_bytes": 16,
+        "format": "=I",
+        "unit": "bytes"
+      },
+      "rtt_us": {
+        "offset_bytes": 68,
+        "format": "=I",
+        "unit": "microseconds"
+      },
+      "rttvar_us": {
+        "offset_bytes": 72,
+        "format": "=I",
+        "unit": "microseconds"
+      },
+      "snd_cwnd_segments": {
+        "offset_bytes": 80,
+        "format": "=I",
+        "unit": "segments"
+      },
+      "total_retrans_segments": {
+        "offset_bytes": 100,
+        "format": "=I",
+        "unit": "segments (cumulative)"
+      },
+      "pacing_rate_bytes_per_second": {
+        "offset_bytes": 104,
+        "format": "=Q",
+        "unit": "bytes/second"
+      },
+      "bytes_acked": {
+        "offset_bytes": 120,
+        "format": "=Q",
+        "unit": "bytes (cumulative)"
+      },
+      "min_rtt_us": {
+        "offset_bytes": 148,
+        "format": "=I",
+        "unit": "microseconds (kernel windowed minimum)"
+      },
+      "delivery_rate_bytes_per_second": {
+        "offset_bytes": 160,
+        "format": "=Q",
+        "unit": "bytes/second"
+      }
+    },
+    "goodput_formula": "8 * delta(payload_bytes_acked) / delta(monotonic_seconds)",
+    "loss_proxy": "delta(total_retrans_segments); a retransmission count, not a loss probability",
+    "optional_values": "null if absent; pacing MAX means unlimited; delivery rate 0 means no estimate",
+    "source": "https://github.com/torvalds/linux/blob/v6.8/include/uapi/linux/tcp.h"
+  },
+  "cookie_ack_target": 38,
+  "samples": [
+    {
+      "tcp_info_length": 256,
+      "snd_mss_bytes": 1448,
+      "rtt_us": 217448,
+      "rttvar_us": 82424,
+      "snd_cwnd_segments": 11,
+      "total_retrans_segments": 0,
+      "pacing_rate_bytes_per_second": 190663,
+      "bytes_acked": 38,
+      "min_rtt_us": 216906,
+      "delivery_rate_bytes_per_second": 6544,
+      "sample_kind": "baseline",
+      "timestamp_utc": "2026-10-18T21:39:40.583215+00:00",
+      "monotonic_seconds": 1810.147188289,
+      "elapsed_seconds": 0,
+      "payload_bytes_acked": 0,
+      "interval_seconds": null,
+      "acked_delta_bytes": null,
+      "goodput_bps": null,
+      "retrans_delta_segments": null,
+      "retrans_rate_segments_per_second": null
+    },
+    {
+      "tcp_info_length": 256,
+      "snd_mss_bytes": 1448,
+      "rtt_us": 217448,
+      "rttvar_us": 82424,
+      "snd_cwnd_segments": 11,
+      "total_retrans_segments": 0,
+      "pacing_rate_bytes_per_second": 190663,
+      "bytes_acked": 38,
+      "min_rtt_us": 216906,
+      "delivery_rate_bytes_per_second": 6544,
+      "sample_kind": "interval",
+      "timestamp_utc": "2026-10-18T21:39:40.785299+00:00",
+      "monotonic_seconds": 1810.349268012,
+      "elapsed_seconds": 0.2020797229999971,
+      "payload_bytes_acked": 0,
+      "interval_seconds": 0.2020797229999971,
+      "acked_delta_bytes": 0,
+      "goodput_bps": 0.0,
+      "retrans_delta_segments": 0,
+      "retrans_rate_segments_per_second": 0.0
+    },
+    {
+      "tcp_info_length": 256,
+      "snd_mss_bytes": 1448,
+      "rtt_us": 262346,
+      "rttvar_us": 32094,
+      "snd_cwnd_segments": 22,
+      "total_retrans_segments": 0,
+      "pacing_rate_bytes_per_second": 190663,
+      "bytes_acked": 15966,
+      "min_rtt_us": 216906,
+      "delivery_rate_bytes_per_second": 55726,
+      "sample_kind": "interval",
+      "timestamp_utc": "2026-10-18T21:39:40.990802+00:00",
+      "monotonic_seconds": 1810.554771406,
+      "elapsed_seconds": 0.40758311700005834,
+      "payload_bytes_acked": 15928,
+      "interval_seconds": 0.20550339400006123,
+      "acked_delta_bytes": 15928,
+      "goodput_bps": 620057.8857591132,
+      "retrans_delta_segments": 0,
+      "retrans_rate_segments_per_second": 0.0
+    },
+    {
+      "tcp_info_length": 256,
+      "snd_mss_bytes": 1448,
+      "rtt_us": 226262,
+      "rttvar_us": 19235,
+      "snd_cwnd_segments": 34,
+      "total_retrans_segments": 0,
+      "pacing_rate_bytes_per_second": 190663,
+      "bytes_acked": 39134,
+      "min_rtt_us": 213394,
+      "delivery_rate_bytes_per_second": 63401,
+      "sample_kind": "interval",
+      "timestamp_utc": "2026-10-18T21:39:41.191337+00:00",
+      "monotonic_seconds": 1810.755314399,
+      "elapsed_seconds": 0.6081261100000575,
+      "payload_bytes_acked": 39096,
+      "interval_seconds": 0.20054299299999911,
+      "acked_delta_bytes": 23168,
+      "goodput_bps": 924210.8000253134,
+      "retrans_delta_segments": 0,
+      "retrans_rate_segments_per_second": 0.0
+    },
+    {
+      "tcp_info_length": 256,
+      "snd_mss_bytes": 1448,
+      "rtt_us": 218107,
+      "rttvar_us": 5043,
+      "snd_cwnd_segments": 54,
+      "total_retrans_segments": 0,
+      "pacing_rate_bytes_per_second": 443730,
+      "bytes_acked": 68094,
+      "min_rtt_us": 213394,
+      "delivery_rate_bytes_per_second": 151185,
+      "sample_kind": "interval",
+      "timestamp_utc": "2026-10-18T21:39:41.392495+00:00",
+      "monotonic_seconds": 1810.956465526,
+      "elapsed_seconds": 0.8092772370000603,
+      "payload_bytes_acked": 68056,
+      "interval_seconds": 0.20115112700000282,
+      "acked_delta_bytes": 28960,
+      "goodput_bps": 1151770.82751317,
+      "retrans_delta_segments": 0,
+      "retrans_rate_segments_per_second": 0.0
+    }
+  ],
+  "protocol_events": [
+    {
+      "elapsed_seconds": 0.45220288400014397,
+      "direction": "receive",
+      "state": "PARAM_EXCHANGE"
+    },
+    {
+      "elapsed_seconds": 0.670329448000075,
+      "direction": "receive",
+      "state": "CREATE_STREAMS"
+    },
+    {
+      "elapsed_seconds": 1.110389793999957,
+      "direction": "receive",
+      "state": "TEST_START"
+    },
+    {
+      "elapsed_seconds": 1.1106447970000772,
+      "direction": "receive",
+      "state": "TEST_RUNNING"
+    }
+  ],
+  "status": "failed",
+  "error": "upload: premature EOF: received 0 of 1 expected bytes",
+  "host": "speedtest.hkg12.hk.leaseweb.net",
+  "port": 5209,
+  "run_id": "08562183-c4b0-4f7b-a1c8-489211ad939d",
+  "attempt": 35,
+  "attempt_started_utc": "2026-10-18T21:39:39.471156+00:00",
+  "repetition": 3,
+  "order_index": 1,
+  "retry": 0
+}
