@@ -109,6 +109,7 @@ If Docker is unavailable (common on lab machines), run natively with the venv co
 | `comparison.py` | Q3 per-run metrics (queueing delay, BDP), variability/algorithm tables, Q3 PDFs |
 | `REPORT.md` | Measurement definitions, metric explanations, and findings for the final report |
 | `results/q1/`, `results/q2/` | Preserved Q1 multi-destination measurements and the longer Q2 trace |
+| `results/q3/` | Q3 run: 5 destinations × CUBIC/Reno/BBR × 3 repetitions (native Ubuntu VM, kernel 7.0.0) |
 | `servers.csv`, `requirements.txt`, `Dockerfile` | Input destinations and reproducible environment |
 
 Each result directory contains `experiment.json` (settings, selection, attempts,
@@ -135,8 +136,8 @@ algorithm × repetition run completed. Queueing delay is median sRTT minus the
 kernel's `tcpi_min_rtt`; the BDP estimate is the highest kernel delivery rate × that
 minimum RTT.
 
-[Report notes](REPORT.md) document the saved runs' Docker Desktop limitation and
-the Q3 method and congestion-control design.
+[Report notes](REPORT.md) document the saved Q1/Q2 runs' Docker Desktop limitation,
+the Q3 method and results, and the congestion-control design.
 After collecting final Linux/WSL2 measurements, update those observations and
 include the corresponding plots and table in the submission PDF. The notes are
 not the final submission. AI assisted implementation, review, and cleanup.

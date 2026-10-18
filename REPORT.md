@@ -102,9 +102,8 @@ TCP phases or prove fairness, repeatability, or controller superiority.
 
 ## Q3(a): CUBIC, Reno, and BBR comparison
 
-**Status: method and tooling done; results pending the Linux lab-machine run.**
-The saved Q1/Q2 data cannot be used: Docker Desktop's kernel offered only
-`reno cubic` and distorted cwnd/MSS. Fill in the bracketed items from `results/q3`.
+Data: [results/q3](results/q3). The saved Q1/Q2 data could not be reused: Docker
+Desktop's kernel offered only `reno cubic` and distorted cwnd/MSS.
 
 **Method.** Same destinations, duration, and sampling interval for every algorithm.
 The algorithm is set with `TCP_CONGESTION` on the data socket before `connect()` and
@@ -113,8 +112,21 @@ counts only if it completes a test with all three algorithms; otherwise it is lo
 and replaced. Each repetition rotates the order (cubic,reno,bbr / reno,bbr,cubic /
 bbr,cubic,reno), so no algorithm always runs first while the path drifts. Repetitions
 2..R sweep all admitted destinations, so repeats are minutes apart. Later failures are
-reported as missing runs. Run: [n] destinations × 3 algorithms × [R] repetitions,
-[t] s each, 0.2 s sampling, seed [422]; host kernel [uname -r]; [Docker or native].
+reported as missing runs, not retried.
+
+**Run.** 5 destinations × 3 algorithms × 3 repetitions = 45 uploads of 30 s each, 0.2 s
+sampling, seed 422, 5 s pause before each test, at most 1 retry; 2026-10-18 21:19–21:47
+UTC. All 5 first-choice destinations were admitted and all 45 runs completed; the only 2
+failures (Hong Kong, `premature EOF` at the start of the upload) succeeded on retry.
+Destinations: Los Angeles (`speedtest.lax12.us.leaseweb.net:5207`, min RTT ≈ 50–65 ms),
+Salt Lake City (`speedtest.xmission.com:5205`, ≈ 50 ms), `213.158.175.240:5201`
+(≈ 160 ms), `iperf.pendc.com:5202` (≈ 165 ms), Hong Kong
+(`speedtest.hkg12.hk.leaseweb.net:5209`, ≈ 210 ms). Host: Ubuntu 26.04.1 (ARM64) live
+session in a UTM virtual machine on an Apple M3 Mac, kernel `7.0.0-30-generic`, Python
+3.14.4, run natively (not in Docker). BBR was loaded with `modprobe tcp_bbr` and added
+to `tcp_allowed_congestion_control`; the default stayed `cubic`. The VM uses UTM's
+Shared Network (NAT), which forwards packets and does not re-terminate TCP: MSS is 1448
+bytes, unlike Docker Desktop's 65483. Other traffic on the home network was not controlled.
 
 **Derived per-run metrics** (`comparison.py`, `run_metrics`):
 
@@ -126,11 +138,14 @@ BDP             = bottleneck_rate × min_rtt  # bytes the path holds without que
 cwnd_to_bdp     = median(cwnd) × MSS / BDP   # > 1: excess window sits in a queue
 ```
 
-**Plots to embed:** `q3-timeseries.pdf` and `q3-scatter.pdf` (representative destination
-[host:port]), `q3-compare.pdf` (all runs), `goodput.pdf`; tables `summary.csv`,
-`q3-algorithms.csv`, `q3-variability.csv`.
+**Plots to embed:** [q3-timeseries.pdf](results/q3/q3-timeseries.pdf) and
+[q3-scatter.pdf](results/q3/q3-scatter.pdf) (representative destination
+`speedtest.lax12.us.leaseweb.net:5207`), [q3-compare.pdf](results/q3/q3-compare.pdf)
+(all runs), [goodput.pdf](results/q3/goodput.pdf); tables
+[summary.csv](results/q3/summary.csv), [q3-algorithms.csv](results/q3/q3-algorithms.csv),
+[q3-variability.csv](results/q3/q3-variability.csv), [q3-runs.csv](results/q3/q3-runs.csv).
 
-**Hypotheses to confirm or refute with the data:**
+**Hypotheses before the run:**
 
 | | Expected throughput | Expected RTT/queue | Why |
 | --- | --- | --- | --- |
@@ -138,27 +153,105 @@ cwnd_to_bdp     = median(cwnd) × MSS / BDP   # > 1: excess window sits in a que
 | CUBIC | High on high-BDP paths | Fills buffer; RTT rises toward a loss | Growth depends on time since loss, not RTT; ×0.7 on loss |
 | BBR | High on lossy or shallow-buffer paths | Near min RTT except periodic probes | Paces at measured bottleneck rate × min RTT; ignores isolated loss; may retransmit more |
 
-**Observations:** [Per algorithm, from q3-algorithms.csv: median goodput, queueing delay,
-retransmits/s, cwnd/BDP, destinations where it won goodput / RTT. Relate winners to
-min RTT and BDP (q3-compare panel d). Point at cwnd sawtooth vs RTT inflation in the
-time series.]
+**Results** (medians over 15 runs per algorithm, from `q3-algorithms.csv`; retransmission
+percentages are retransmitted segments ÷ acknowledged segments):
 
-**Variability and limitations:** [CoV range from q3-variability.csv.] Public paths share
-the bottleneck with unknown cross traffic, routes and server load change between runs,
-and some servers may cap rates, so a difference smaller than the run-to-run spread is not
-evidence that one algorithm is better. Interleaving and rotation reduce time bias but do
+| | Goodput (Mbit/s) | Queueing delay (ms) | Retransmitted | Steady-state retransmitted (after 3 s) | cwnd·MSS / BDP | Best goodput / lowest RTT |
+| --- | --- | --- | --- | --- | --- | --- |
+| CUBIC | 28.2 | 8.7 | 0.65% | 0.11% | 0.71 | 0 / 1 of 5 destinations |
+| Reno | 15.9 | 6.5 | 0.75% | 0.06% | 0.54 | 0 / 4 |
+| BBR | 37.4 | 10.9 | 7.8% | 6.6% | 2.07 | 5 / 0 |
+
+Mean goodput per destination (`summary.csv`, Mbit/s, ordered by min RTT):
+
+| Destination | min RTT | CUBIC | Reno | BBR |
+| --- | --- | --- | --- | --- |
+| Salt Lake City (xmission) | ≈ 50 ms | 30.9 | 28.3 | 40.0 |
+| Los Angeles (leaseweb) | ≈ 63 ms | 33.1 | 23.2 | 39.7 |
+| 213.158.175.240 | ≈ 160 ms | 27.0 | 15.4 | 37.1 |
+| iperf.pendc.com | ≈ 165 ms | 24.7 | 16.5 | 35.8 |
+| Hong Kong (leaseweb) | ≈ 210 ms | 16.7 | 12.0 | 35.2 |
+
+**Observations.**
+- *One shared, shallow bottleneck near the sender.* Every destination, from 50 ms to 210 ms
+  away, tops out at the same ≈ 45–49 Mbit/s peak delivery rate, and BBR reaches 35–40 Mbit/s
+  everywhere. The limit is therefore on the common part of the path, most likely the home
+  upload link (or the VM's NAT), not at the servers. The buffer in front of it is small:
+  median queueing delay stays at 5–11 ms for all three algorithms, and even CUBIC's p95 RTT
+  is only ≈ 15 ms above the minimum. At 45 Mbit/s that is roughly 40–60 full-size packets,
+  far less than the path BDP (≈ 200 packets at 50 ms, ≈ 800 at 210 ms). This makes the
+  experiment close to a controlled one: the bottleneck stays the same and only the RTT
+  changes between destinations.
+- *CUBIC and Reno are loss-limited below the BDP.* The time series show the textbook
+  sawtooth: Reno halves cwnd and climbs back linearly; CUBIC cuts to ≈ 0.7× and regrows
+  along its concave-then-convex curve. Each drop happens when cwnd reaches about BDP plus
+  the small buffer, so after a cut the window is well below the BDP and the link sits
+  partly idle until it regrows. The median window is only 0.71 (CUBIC) and 0.54 (Reno) of
+  the BDP. With a buffer much smaller than the BDP, a loss-based flow cannot keep the pipe
+  full.
+- *The RTT penalty matches theory.* Reno grows by 1 MSS per RTT, so its recovery time grows
+  with RTT and its goodput falls from 28 Mbit/s at 50 ms to 12 Mbit/s at 210 ms (panel d of
+  `q3-compare.pdf`), as the Mathis model (rate ∝ MSS / (RTT·√p)) predicts. CUBIC's growth
+  depends on the time since the last loss rather than on RTT, so it degrades less
+  (31 → 17 Mbit/s). On average it beats Reno at every destination, by the most on the long
+  paths.
+- *Most CUBIC/Reno losses come from slow start.* 83% (CUBIC) and 92% (Reno) of their
+  retransmissions happen in the first 3 s, when slow start overshoots the small buffer
+  (the spike of ≈ 400 retransmitted segments per interval in the loss column). In
+  congestion avoidance only 0.06–0.11% of segments are retransmitted: a few loss episodes
+  per 30 s.
+- *BBR keeps the pipe full by ignoring loss.* BBR's window sits at 2.0–2.1 × BDP in every
+  run, exactly its in-flight cap (cwnd gain 2). The extra BDP worth of data cannot fit in
+  a 40–60 packet buffer, so BBR overflows it continuously: 5–16% of segments are
+  retransmitted, about 60 times CUBIC's steady-state rate. Because BBR's rate comes from
+  its bandwidth estimate, not from loss, it keeps sending at ≈ 38 Mbit/s regardless of RTT
+  and wins goodput at all five destinations. The cost is the highest queueing delay
+  (median 10.9 ms, p95 ≈ 49 ms above the minimum against ≈ 13–15 ms for CUBIC/Reno) and the
+  retransmissions. Its per-interval goodput is spiky (0–110 Mbit/s at 0.2 s) because
+  retransmitted holes are filled in bursts and cumulative ACKs jump. In the LAX trace, the
+  cwnd drop to ≈ 4 packets near 15 s is BBR's PROBE_RTT, which drains the queue to
+  re-measure the minimum RTT.
+- *Regimes.* On this path BBR operates at its rate and in-flight limits, with loss as a
+  side effect. CUBIC and Reno operate in a loss-driven sawtooth below the BDP, and their
+  throughput is set by RTT and by how often the small buffer overflows. Queueing delay is
+  low for all three because the buffer is small; the hypothesis that loss-based algorithms
+  would inflate RTT more than BBR does not hold here. With a deep buffer, CUBIC and Reno
+  would fill it and build the larger queue.
+- *Anomaly.* In repetition 1 to Hong Kong, CUBIC reached only 7.6 Mbit/s: the window grew
+  slowly from the start and never reached the BDP, unlike repetitions 2–3 (21 Mbit/s). It
+  ran right after a failed attempt to the same server. This one run accounts for most of
+  CUBIC's spread at that destination.
+
+**Variability and limitations.** BBR is very repeatable: the coefficient of variation of
+per-run goodput is 0.3–1.7% at every destination. CUBIC (5–47%) and Reno (5–28%) vary much
+more, because a loss episode at an unlucky moment costs a whole sawtooth period in a 30 s
+test. Public paths share the bottleneck with unknown cross traffic, routes and server load
+change between runs, and some servers may cap rates, so a difference smaller than the
+run-to-run spread is not evidence that one algorithm is better. Here BBR's lead over
+CUBIC exceeds the spread at every destination. CUBIC's lead over Reno does too, except at
+Salt Lake City (the shortest path, where both are close to the link rate) and Hong Kong
+(where the anomalous 7.6 Mbit/s CUBIC run widens CUBIC's spread). The delivery-rate maximum overstates the bottleneck slightly (ACK bursts
+can push it above the link rate), so cwnd/BDP ratios are approximate. Each algorithm's
+BDP is computed from its own run; BDP from the destination-wide maximum gives even lower
+ratios for Reno (≈ 0.35) and CUBIC (≈ 0.66). The bottleneck is probably the home network
+and VM NAT rather than the wide-area path, so the results describe a shallow-buffer,
+≈ 45 Mbit/s access link. Interleaving and rotation reduce time bias but do
 not remove it. One upload stream per test means no algorithm competes with another of
 its own kind here, so fairness is not measured.
 
 ## Q3(b): DART, a delay-aware, rate-targeting controller
 
-**Idea.** In the Q2 trace, retransmissions were absent while RTT moved before goodput
-dropped (e.g. 0.81 → 1.94 ms at the largest goodput drop). Loss is a late and sparse
-signal on these paths, so DART uses **queueing delay** as its main signal. It uses
-**delivery rate** to size the window against the BDP, and **loss** only for
-backoff, scaled by whether the queue was actually full. Every input is a field we
-already decode from `TCP_INFO`: `rtt`, `rttvar`, `min_rtt`, `delivery_rate`,
-`total_retrans`, `snd_cwnd`. [Confirm the motivation with Q3 retransmission rates.]
+**Idea.** Q3(a) shows the two failure modes DART is meant to avoid. CUBIC and Reno use
+loss as their only signal. On a buffer much smaller than the BDP, every loss leaves them
+below the BDP: their median window was 0.54–0.71 × BDP, and Reno lost more than half its
+goodput on the 210 ms path. Loss is also sparse, about 0.1% of segments in congestion
+avoidance, so it tells them little. BBR ignores loss and keeps 2 × BDP in flight, which
+fills the pipe but overflows the small buffer, causing 5–16% retransmissions and the highest
+queueing delay. DART targets the point between them: **the BDP plus a few packets**. It
+uses **queueing delay** as its main signal, **delivery rate** to size the window against the
+BDP, and **loss** only for backoff, scaled by whether the queue was actually full. Every
+input is a field we already decode from `TCP_INFO`: `rtt`, `rttvar`, `min_rtt`,
+`delivery_rate`, `total_retrans`, `snd_cwnd`.
 
 ```text
 constants: α = 2, β = 4 packets (target backlog in the bottleneck queue)
@@ -180,7 +273,7 @@ once per RTT:
     if   queued < α and btl_bw still rising: cwnd += 2   # throughput says room left
     elif queued < α:                         cwnd += 1
     elif queued > β and not noisy:           cwnd -= 1
-    cwnd = min(cwnd, 2 × bdp)                             # bound the standing queue
+    cwnd = min(cwnd, bdp + 4β)                            # bound the standing queue
     if queued > β for 8 RTTs despite decreases:           # a loss-based flow fills the
       mode = COMPETE                                      #   buffer; backing off only starves us
 
@@ -202,8 +295,11 @@ on retransmission timeout:
 - *Delay first.* Keeping only α–β packets queued holds RTT near `min_rtt`, which Reno and
   CUBIC cannot do because they grow until the buffer overflows.
 - *Throughput sets speed and the ceiling.* Exponential startup exits when the delivery
-  rate stops growing (the pipe is full), and the cap `cwnd ≤ 2·BDP` bounds the queue even
-  if the delay signal is wrong.
+  rate stops growing (the pipe is full), and the cap `cwnd ≤ BDP + 4β` bounds the queue even
+  if the delay signal is wrong. The cap is additive, not BBR's 2 × BDP: in Q3(a), 2 × BDP
+  meant 200–800 extra packets against a buffer of about 40–60, and BBR retransmitted 5–16%
+  of its segments. The windowed-max delivery rate tends to overestimate the BDP slightly,
+  so the cap does not cut below the true BDP.
 - *Loss is classified by delay.* A loss with an empty queue is probably random
   (wireless, policing), so DART cuts only 10% and never below the BDP. That avoids the
   throughput collapse loss-based algorithms suffer on lossy long paths. A loss with a full
@@ -236,6 +332,10 @@ min RTT changes slowly compared with the 10 s window.
 - *Base-RTT error:* a flow that starts while a queue already exists measures an inflated
   `min_rtt`, underestimates its backlog, and takes more than its share until the next refresh.
   A route change has the same effect.
+- *Shallow buffers blur the loss classifier.* In Q3(a) the buffer overflowed at only
+  about 10–15 ms of queueing, which is comparable to RTT jitter. On such a link a
+  congestive loss can look "random" and get the mild 0.9× cut. Floored at the BDP, that is
+  the right response for a single flow, but with competing flows it backs off too little.
 - *Reverse-path congestion and ACK compression* inflate RTT without a forward queue, so
   DART backs off unnecessarily.
 - *Coexistence:* COMPETE is Reno-like, so DART loses against CUBIC on high-BDP paths and
