@@ -1,0 +1,370 @@
+{
+  "started_utc": "2026-10-18T23:33:08.103188+00:00",
+  "status": "complete",
+  "requested_destinations": 10,
+  "successful_destinations": 10,
+  "shortfall": 0,
+  "seed": 422,
+  "max_attempts": 20,
+  "duration_seconds": 3,
+  "sampling_interval_seconds": 0.2,
+  "timeout_seconds": 10,
+  "host_metadata": {
+    "platform": "Linux-7.0.0-30-generic-aarch64-with-glibc2.43",
+    "kernel": "7.0.0-30-generic",
+    "python": "3.14.4",
+    "tcp_available_congestion_control": "reno cubic bbr",
+    "tcp_allowed_congestion_control": "reno cubic bbr",
+    "tcp_congestion_control": "cubic"
+  },
+  "algorithms": [
+    "cubic"
+  ],
+  "repetitions": 1,
+  "pause_seconds": 5,
+  "retries_per_run": 1,
+  "algorithm_policy": "OS default at experiment start",
+  "matplotlib_version": "3.10.7+dfsg1",
+  "server_list_source": "https://iperf3serverlist.net/",
+  "input_server_file": "/home/ubuntu/CS422-hw2/servers.csv",
+  "initial_selection": [
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202
+    },
+    {
+      "host": "154.81.51.4",
+      "port": 5201
+    },
+    {
+      "host": "185.180.12.40",
+      "port": 5201
+    },
+    {
+      "host": "96.45.38.22",
+      "port": 30004
+    },
+    {
+      "host": "speedtest1.cwpanama.net",
+      "port": 5506
+    },
+    {
+      "host": "speedtest.wtnet.de",
+      "port": 5209
+    }
+  ],
+  "candidate_order": [
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202
+    },
+    {
+      "host": "154.81.51.4",
+      "port": 5201
+    },
+    {
+      "host": "185.180.12.40",
+      "port": 5201
+    },
+    {
+      "host": "96.45.38.22",
+      "port": 30004
+    },
+    {
+      "host": "speedtest1.cwpanama.net",
+      "port": 5506
+    },
+    {
+      "host": "speedtest.wtnet.de",
+      "port": 5209
+    },
+    {
+      "host": "iperf3.moji.fr",
+      "port": 5204
+    },
+    {
+      "host": "49.205.75.2",
+      "port": 5018
+    },
+    {
+      "host": "speedtest.netone.nl",
+      "port": 5201
+    },
+    {
+      "host": "speedtest.syd12.au.leaseweb.net",
+      "port": 5202
+    },
+    {
+      "host": "148.230.60.200",
+      "port": 30009
+    },
+    {
+      "host": "143.244.63.144",
+      "port": 5201
+    },
+    {
+      "host": "a204.speedtest.wobcom.de",
+      "port": 5201
+    },
+    {
+      "host": "speed.netfiber.net.il",
+      "port": 5201
+    },
+    {
+      "host": "185.93.2.193",
+      "port": 5201
+    },
+    {
+      "host": "189.25.98.63",
+      "port": 30001
+    }
+  ],
+  "admitted_destinations": [
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202
+    },
+    {
+      "host": "154.81.51.4",
+      "port": 5201
+    },
+    {
+      "host": "96.45.38.22",
+      "port": 30004
+    },
+    {
+      "host": "speedtest1.cwpanama.net",
+      "port": 5506
+    },
+    {
+      "host": "speedtest.wtnet.de",
+      "port": 5209
+    },
+    {
+      "host": "iperf3.moji.fr",
+      "port": 5204
+    }
+  ],
+  "failed_later_runs": 0,
+  "attempts": [
+    {
+      "host": "speedtest.lax12.us.leaseweb.net",
+      "port": 5207,
+      "run_id": "f20605f8-6f16-4253-950f-ab706d3e3413",
+      "attempt": 1,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-001.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.hkg12.hk.leaseweb.net",
+      "port": 5209,
+      "run_id": "f91f933c-1f86-4e62-a474-6b608283e147",
+      "attempt": 2,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-002.json",
+      "error": null
+    },
+    {
+      "host": "213.158.175.240",
+      "port": 5201,
+      "run_id": "0f6be5b3-056c-4f05-a3cd-b577a6ac97ec",
+      "attempt": 3,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-003.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.xmission.com",
+      "port": 5205,
+      "run_id": "82dd52bf-c710-42f6-9500-84023490c3dd",
+      "attempt": 4,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-004.json",
+      "error": null
+    },
+    {
+      "host": "iperf.pendc.com",
+      "port": 5202,
+      "run_id": "a3f3498f-01d0-4283-8f87-52a76f4765fc",
+      "attempt": 5,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-005.json",
+      "error": null
+    },
+    {
+      "host": "154.81.51.4",
+      "port": 5201,
+      "run_id": "4a78f763-e9ac-4cc8-8ab1-feef61ae45d3",
+      "attempt": 6,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-006.json",
+      "error": null
+    },
+    {
+      "host": "185.180.12.40",
+      "port": 5201,
+      "run_id": "fc2e182b-57ab-4bbb-82c5-9d2686733413",
+      "attempt": 7,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "failed",
+      "result_file": "runs/attempt-007.json",
+      "error": "parameter negotiation: ACCESS_DENIED: server is busy or refused the test"
+    },
+    {
+      "host": "185.180.12.40",
+      "port": 5201,
+      "run_id": "259a640f-0ff8-4937-a071-9a6528f7f987",
+      "attempt": 8,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 1,
+      "status": "failed",
+      "result_file": "runs/attempt-008.json",
+      "error": "parameter negotiation: ACCESS_DENIED: server is busy or refused the test"
+    },
+    {
+      "host": "96.45.38.22",
+      "port": 30004,
+      "run_id": "e46819aa-5fe3-46fe-b571-73f87471b8c7",
+      "attempt": 9,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "failed",
+      "result_file": "runs/attempt-009.json",
+      "error": "upload: data connection closed before the duration elapsed"
+    },
+    {
+      "host": "96.45.38.22",
+      "port": 30004,
+      "run_id": "1a54a057-bbf8-463e-8a01-b8b9e17a8127",
+      "attempt": 10,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 1,
+      "status": "success",
+      "result_file": "runs/attempt-010.json",
+      "error": null
+    },
+    {
+      "host": "speedtest1.cwpanama.net",
+      "port": 5506,
+      "run_id": "c88d7905-cefc-47b9-bd9f-fcd38784ed80",
+      "attempt": 11,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-011.json",
+      "error": null
+    },
+    {
+      "host": "speedtest.wtnet.de",
+      "port": 5209,
+      "run_id": "0715e546-9d98-42fd-adf8-481733ca70da",
+      "attempt": 12,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-012.json",
+      "error": null
+    },
+    {
+      "host": "iperf3.moji.fr",
+      "port": 5204,
+      "run_id": "28157096-ab53-48cd-baf9-492805e347d2",
+      "attempt": 13,
+      "algorithm": "cubic",
+      "repetition": 1,
+      "order_index": 1,
+      "retry": 0,
+      "status": "success",
+      "result_file": "runs/attempt-013.json",
+      "error": null
+    }
+  ],
+  "baseline_algorithm": "cubic",
+  "finished_utc": "2026-10-18T23:34:56.001303+00:00"
+}
