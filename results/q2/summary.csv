@@ -1,2 +1,0 @@
-host,port,actual_algorithm,runs,intervals,min_goodput_mbps,median_goodput_mbps,mean_goodput_mbps,p95_goodput_mbps,overall_goodput_mbps,acknowledged_bytes,measured_seconds
-speedtest.lax12.us.leaseweb.net,5207,cubic,1,99,58.318889120664544,225.04050708629745,219.17781251012298,321.69153372452405,219.13957514105292,547936425,20.003193841999973

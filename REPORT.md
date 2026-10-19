@@ -1,6 +1,6 @@
 # Report notes (Q1–Q3)
 
-These notes describe the preserved measurements. Reproduction commands and
+These notes describe the final measurements (`results/q1-linux-30s`, `results/q2-linux`, `results/q3`). Reproduction commands and
 handout question/page references are in [README.md](README.md).
 
 ## Measurement method (Q1(c), Q2(a))
@@ -23,7 +23,7 @@ The kernel, byte order, layout, and actual returned length are recorded with run
 | total_retrans | 100 | `=I` | cumulative segments |
 | pacing_rate | 104 | `=Q` | bytes/s |
 | bytes_acked | 120 | `=Q` | cumulative bytes |
-| min_rtt | 148 | `=I` | microseconds, kernel windowed minimum (added for Q3; absent in Q1/Q2 data) |
+| min_rtt | 148 | `=I` | microseconds, kernel windowed minimum (added for Q3; absent in the Docker runs) |
 | delivery_rate | 160 | `=Q` | bytes/s, optional |
 
 Layout reference: [Linux TCP_INFO](https://github.com/torvalds/linux/blob/v6.8/include/uapi/linux/tcp.h).
@@ -64,41 +64,100 @@ Rates are decimal Mbit/s. This Q1/Q2 run plan has one repetition per destination
   Retransmitted payload counts once when acknowledged. Local `send()` acceptance
   and the kernel's latest delivery-rate estimate are different measurements.
 
-## Preserved results and observations
+## Q1/Q2 results and observations
 
-**Q1:** [goodput plots](results/q1/goodput.pdf), [summary table](results/q1/summary.csv).
-Ten destinations completed in 12 attempts, with 3-second uploads and 0.2-second
-sampling: 150 successful intervals. A busy rejection and a premature disconnect
-were retained and replaced; the requested destination count had no shortfall.
-These short runs verify coverage and interoperability, but do not characterize
-steady congestion avoidance.
+**Environment.** Final Q1/Q2 data comes from the same host as Q3: an Ubuntu 26.04.1
+(ARM64) live session in a UTM VM on an Apple M3 Mac, kernel `7.0.0-30-generic`, Python
+3.14.4, run natively (not in Docker), with UTM Shared Network (NAT), on 2026-10-18. The
+OS default and every run is **cubic**. An earlier run under Docker Desktop on macOS
+(kernel `6.10.14-linuxkit`) was discarded. Docker Desktop's networking ends the container's TCP connection at a local
+proxy, so those runs measured the hop to that proxy, not the path to the server: MSS
+65483 bytes, RTT 0.2–16 ms to Los Angeles, cwnd fixed near 40, no retransmissions, and
+goodput up to 256 Mbit/s, which is more than the ≈ 45 Mbit/s uplink can carry (see Q3).
+In the Linux runs MSS is 1448 bytes (1368–1424 on two paths), and RTTs match distance.
 
-**Q2:** [time series](results/q2/q2-timeseries.pdf), [scatter plots](results/q2/q2-scatter.pdf).
-Representative destination: `speedtest.lax12.us.leaseweb.net:5207`;
-run `bb4f212f-f6f9-4aaf-ab06-371c6ff9bffe`, **cubic**, 99 intervals over 20.003 s.
-Overall goodput was **219.140 Mbit/s**. Every Q2 figure and observation uses this run.
+**Q1:** [goodput plots](results/q1-linux-30s/goodput.pdf),
+[summary table](results/q1-linux-30s/summary.csv). Ten destinations completed in 15
+attempts, with 30-second uploads, 0.2-second sampling, and seed 422: 1470 measured
+intervals. Failures were kept and handled as specified: `iperf.pendc.com` (reset during
+upload, then timeout on retry) and `185.180.12.40` (`ACCESS_DENIED`, server busy, twice)
+were replaced; `96.45.38.22` closed the data connection once and succeeded on retry.
+No shortfall.
+
+| Destination | min RTT (ms) | Overall goodput (Mbit/s) | Median / p95 interval goodput |
+| --- | ---: | ---: | --- |
+| iperf3.moji.fr (France) | 125 | 30.1 | 32.2 / 37.7 |
+| speedtest1.cwpanama.net (Panama) | 115 | 28.7 | 28.9 / 38.9 |
+| speedtest.hkg12.hk.leaseweb.net (Hong Kong) | 230 | 28.3 | 30.3 / 39.0 |
+| 213.158.175.240 | 173 | 24.3 | 24.4 / 38.3 |
+| speedtest.lax12.us.leaseweb.net (Los Angeles) | 68 | 24.2 | 22.4 / 39.7 |
+| speedtest.xmission.com (Salt Lake City) | 56 | 20.8 | 19.6 / 30.8 |
+| 96.45.38.22 | 244 | 18.4 | 21.2 / 32.3 |
+| 154.81.51.4 | 259 | 16.3 | 18.1 / 32.9 |
+| speedtest.wtnet.de (Germany) | 127 | 12.9 | 13.1 / 23.9 |
+| 49.205.75.2 (India) | 254 | 0.2 | 0.2 / 0.2 |
+
+Observations:
+- *A common ceiling.* p95 interval goodput is 31–40 Mbit/s for nine of ten destinations,
+  whatever the distance: the same ≈ 45 Mbit/s bottleneck near the sender found in Q3.
+  Average goodput is below that ceiling because CUBIC backs off after each loss.
+- *Upload length matters on long paths.* Slow start doubles cwnd once per RTT, so it
+  reaches the path's window size much later on a 250 ms path than on a 60 ms one. A
+  3-second trial run (discarded) left the 240–400 ms paths at 0.7–2 Mbit/s, still in slow
+  start, which is why the final run uses 30 s uploads. Even at 30 s the start-up cost is
+  visible: for 154.81.51.4 and 96.45.38.22 the average rate after the first 10 s is about
+  22–25 Mbit/s, higher than their 30 s averages (16–18 Mbit/s).
+- *Per-path differences come from loss, not distance alone.* Hong Kong (230 ms) averaged
+  more than Los Angeles (68 ms) in this run; the Q3 repetitions show that single CUBIC runs
+  vary by 5–47%, so a one-run ranking of destinations is not reliable. Germany (12.9 Mbit/s)
+  had 610 retransmissions, more than most paths, which keeps its window lower.
+- *Anomaly: 49.205.75.2.* This path stayed at 0.2 Mbit/s for the whole 30 s, with cwnd
+  never above 19 segments and RTT up to ≈ 290 ms. A window that small and flat suggests a
+  limit outside our sender's congestion control (a server- or network-side rate limit, or
+  a very lossy path), but these measurements cannot identify the cause.
+- Every successful interval is included, so `min_goodput_mbps` is 0.0 for most
+  destinations: the last sample covers a sub-millisecond interval after sending stops.
+
+**Q2:** [time series](results/q2-linux/q2-timeseries.pdf),
+[scatter plots](results/q2-linux/q2-scatter.pdf). Representative destination:
+`speedtest.lax12.us.leaseweb.net:5207` (the first successful destination; the same server
+as the Docker Q2 run); run `cac92fef-6d6d-4d01-8073-75a996b32d68`, **cubic**, 99 intervals
+over 20.0 s, seed 422. Overall goodput was **25.0 Mbit/s**. Every Q2 figure and
+observation uses this run.
 
 | Metric | Minimum | Median | Maximum |
 | --- | ---: | ---: | ---: |
-| cwnd (segments) | 40 | 40 | 40 |
-| RTT (ms) | 0.193 | 0.780 | 16.068 |
-| Retransmitted segments / interval | 0 | 0 | 0 |
-| Goodput (Mbit/s) | 58.319 | 225.041 | 338.180 |
+| cwnd (segments) | 40 | 172 | 672 |
+| Smoothed RTT (ms) | 75.0 | 78.1 | 127.5 |
+| Retransmitted segments / interval | 0 | 0 | 250 |
+| Goodput (Mbit/s) | 0.0 (final partial interval) | 25.3 | 54.4 |
 
-cwnd stayed at 40 while goodput varied, so window changes do not explain the
-variation. The zero loss proxy cannot demonstrate a loss response or a loss/goodput
-correlation. The highest RTT was 16.068 ms at 0.203 s. The largest adjacent goodput
-drop was 332.692 to 121.411 Mbit/s at 16.817 s: cwnd remained 40, RTT rose from
-0.810 to 1.944 ms, and no retransmissions were recorded. ACK timing, buffering,
-pacing, or receiver/application limits are possible explanations, not established causes.
+Kernel minimum RTT was 69.6 ms, so the median smoothed RTT is ≈ 8.5 ms above the path's
+propagation delay.
 
-Both saved datasets used Docker Desktop, kernel **6.10.14-linuxkit**, Python
-**3.12.3**. Q2 reported MSS **65483 bytes**; forwarding through the VM can affect
-MSS, RTT, and ACK timing, so these are development measurements. Final experiments
-must use Linux or WSL2 as required on p. 3. No extra kernel configuration was used.
-Scatter associations do not establish causation, and these samples do not identify
-TCP phases or prove fairness, repeatability, or controller superiority.
+Observations (Q2(c)):
+- *Slow start and overshoot.* cwnd grows from 40 to 672 segments in the first 0.6 s.
+  That exceeds the BDP (≈ 45 Mbit/s × 70 ms ≈ 270 segments) plus the small buffer, so the
+  queue overflows: RTT rises to 127.5 ms, 250 segments are retransmitted in one interval
+  (0.82 s), and cwnd falls to ≈ 170. Goodput peaks at 54 Mbit/s during the overshoot, as
+  queued data drains.
+- *Congestion avoidance follows the CUBIC curve.* After 1.5 s cwnd grows quickly, then
+  flattens near its previous maximum (≈ 200 segments), then grows again: CUBIC's
+  concave-then-convex window function. Goodput tracks cwnd at ≈ 25–30 Mbit/s, consistent
+  with `8·cwnd·MSS/RTT` (172 × 1448 × 8 / 0.078 s ≈ 25.5 Mbit/s at the medians).
+- *Loss events cause the goodput drops.* At 5.73 s, 22 segments were retransmitted, cwnd
+  fell from 199 to 139 (×0.70, CUBIC's β), RTT rose from 79 to 94 ms, and interval goodput
+  fell to 9.6 Mbit/s. At 16.54 s, 38 retransmissions cut cwnd from 188 to 133 (×0.71), RTT
+  rose to 93 ms, and goodput fell to 8.3 Mbit/s. In both, RTT spikes in the loss interval (the
+  queue had filled) and recovers within one interval after the cut.
+- *RTT is flat in between.* Between losses the queue stays small (smoothed RTT 75–85 ms
+  against a 69.6 ms minimum), so on this path the cwnd and loss signals explain goodput
+  better than RTT does. The scatter plots show this: cwnd and goodput are positively
+  related, while RTT and the loss proxy are near-constant except at the few loss intervals.
 
+Scatter associations do not establish causation. Loss is measured as retransmitted
+segments, which can include spurious retransmissions. One 20 s run on a public path with
+uncontrolled home traffic cannot establish repeatability; Q3 adds repetitions.
 
 ## Q3(a): CUBIC, Reno, and BBR comparison
 
