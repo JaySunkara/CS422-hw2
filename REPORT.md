@@ -412,10 +412,13 @@ Embed the plots and tables, include the repository and relevant function/line li
 
 ## AI acknowledgement
 
-We used Claude (Anthropic), through Claude Code, as an assistant.
+We used Codex (OpenAI) and Claude (Anthropic, through Claude Code) as assistants.
 
-- **Q1/Q2:** AI assisted with implementation, review, and cleanup of the iPerf3 client and
-  measurement code. *[Teammate: describe your use here.]*
+- **Q1/Q2:** Codex helped implement and review the iPerf3 protocol exchange
+  (`iperf_client.py`), TCP_INFO sampling and goodput calculations (`tcp_stats.py`),
+  and the experiment runner, summary tables, and plots (`experiment.py`, `reporting.py`).
+  It helped check public-server uploads and saved interval calculations, and draft
+  the metric explanations and trace observations.
 - **Q3 code:** it helped write the CUBIC/Reno/BBR schedule with rotated order, repetitions,
   retries, and pauses (`experiment.py`), the per-algorithm pre-flight check
   (`tcp_stats.py`), and the comparison tables and plots (`comparison.py`).
