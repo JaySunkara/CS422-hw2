@@ -409,4 +409,18 @@ min RTT changes slowly compared with the 10 s window.
 Embed the plots and tables, include the repository and relevant function/line links
 (Q3 code: `experiment.py` `run_experiment`/`algorithm_order`, `tcp_stats.py`
 `check_algorithms`, `comparison.py`), and update observations if measurements change.
-AI assisted implementation, checking, cleanup, and drafting of the Q3 design write-up.
+
+## AI acknowledgement
+
+We used Claude (Anthropic), through Claude Code, as an assistant.
+
+- **Q1/Q2:** AI assisted with implementation, review, and cleanup of the iPerf3 client and
+  measurement code. *[Teammate: describe your use here.]*
+- **Q3 code:** it helped write the CUBIC/Reno/BBR schedule with rotated order, repetitions,
+  retries, and pauses (`experiment.py`), the per-algorithm pre-flight check
+  (`tcp_stats.py`), and the comparison tables and plots (`comparison.py`).
+- **Measurements:** it helped set up the Ubuntu VM used for all final runs, and diagnose
+  why the earlier Docker Desktop data was invalid (its proxy ended TCP locally).
+- **Analysis and writing:** it helped interpret the measurements, draft the Q1, Q2, and
+  Q3 observations, and draft the DART design (pseudocode, fairness, convergence,
+  assumptions, and limitations).
