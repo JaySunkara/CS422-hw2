@@ -1,4 +1,6 @@
-# Report notes (Q1–Q3)
+# Report notes
+
+[Github Link](https://github.com/JaySunkara/CS422-hw2)
 
 These notes describe the final measurements (`results/q1-linux-30s`, `results/q2-linux`, `results/q3`). Reproduction commands and
 handout question/page references are in [README.md](README.md).
