@@ -23,7 +23,7 @@ Page numbers refer to [assignment-2.pdf](assignment-2.pdf).
 
 The PDF requires successful TCP experiments and verification of generated code;
 it does **not** require a test suite or submitted test cases. Q3(b) is pseudocode
-and analysis in [REPORT.md](REPORT.md); it is not implemented in the kernel.
+and analysis in [REPORT.pdf](REPORT.pdf); it is not implemented in the kernel.
 
 ## Run
 
@@ -108,7 +108,7 @@ If Docker is unavailable (common on lab machines), run natively with the venv co
 | `tcp_stats.py` | Decode Linux TCP_INFO and calculate intervals from data-socket snapshots |
 | `reporting.py` | Read saved runs, write CSV tables, generate Q1 and Q2 PDFs; dispatch Q3 directories |
 | `comparison.py` | Q3 per-run metrics (queueing delay, BDP), variability/algorithm tables, Q3 PDFs |
-| `REPORT.md` | Measurement definitions, metric explanations, and findings for the final report |
+| `REPORT.pdf` | Final report with measurement definitions, findings, embedded plots, and congestion-control design |
 | `results/q1-linux-30s/`, `results/q2-linux/` | Final Q1 (10 destinations, 30 s) and Q2 (20 s trace) runs, native Ubuntu VM |
 | `results/q3/` | Q3 run: 5 destinations × CUBIC/Reno/BBR × 3 repetitions (native Ubuntu VM, kernel 7.0.0) |
 | `servers.csv`, `requirements.txt`, `Dockerfile` | Input destinations and reproducible environment |
@@ -137,7 +137,6 @@ algorithm × repetition run completed. Queueing delay is median sRTT minus the
 kernel's `tcpi_min_rtt`; the BDP estimate is the highest kernel delivery rate × that
 minimum RTT.
 
-[Report notes](REPORT.md) document why Docker Desktop is unsuitable for these measurements,
+[Final report](REPORT.pdf) documents why Docker Desktop is unsuitable for these measurements,
 the Q3 method and results, and the congestion-control design.
-Include the corresponding plots and tables in the submission PDF. The notes are
-not the final submission. AI assisted implementation, review, and cleanup.
+AI assisted implementation, review, and cleanup.
